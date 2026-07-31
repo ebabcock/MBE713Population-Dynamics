@@ -13,55 +13,14 @@ library(tidyverse)
 
 Each individual of an annual plant species produces on average ten seeds. (a) Starting with a single individual, what will be the population size after 6 years, assuming all the seeds survive to produce adult plants the following generation? (b) A new variety of the plant produces 5 per cent more seeds, i.e. 10.5 seeds on average. What will be the potential number of offspring after 6 years from a single individual?
 
-for plant 1 $N_6=10^6$
-
-for plant 2 $N_6=10.5^6=1.34x 10^6$
-
-The new plant has 34% more offspring in 6 years.
-
 Make a plot of the two trends.
-
-```{r}
-plants<-data.frame(t=1:6)
-plants$N1<-10^plants$t
-plants$N2<-10.5^plants$t
-ggplot(plants,aes(x=t))+
-  geom_line(aes(y=N1,color="R=10"))+
-  geom_line(aes(y=N2,color="R=10.5"))
-```
 
 ### Neal: Introduction to Population Biology (question 4.2).
 
 \(a\) The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
 
-$$r_m=0.0143$$ $$N_0=1$$ $$N_t=2$$ $$t=?$$
-
-$$N_t=N_0 exp(r_m t)$$ $$log(N_t)=r_m t$$ $$t=log(N_t)/r_m$$ $$t=log(2)/0.0143$$
-
-```{r}
-log(2)/0.0143
-```
-
-48 days for the population to double.
-
 \(c\) How long will it take for the human population to multiply by 10?
 
-```{r}
-rm<-0.001095043
-log(10)/rm
-```
+### Neal: 4.5.
 
-Population would multiply by 10 in 2103 years.
-
-### Neal: 4.5. A population increases fivefold over a 4-week period. What is the value of $\lambda$ per day, assuming exponential growth?
-
-```{r}
-N0<-1
-N4<-5
-rm<-log(5)/(4*7)
-rm
-lambda<-exp(rm)
-lambda
-```
-
-Lambda=1.06 per week.
+A population increases fivefold over a 4-week period. What is the value of $\lambda$ per day, assuming exponential growth?
