@@ -1,0 +1,24 @@
+---
+title: "Maximum Likelihood Estimation (MLE): A Brief Tutorial"
+author: "MBE 713 Population Dynamics"
+format:
+  html:
+    toc: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Learning goals
+
+By the end of this tutorial, you should be able to:
+
+1. Write a likelihood for a simple population growth model.
+2. Estimate parameters using `optim()`.
+3. Compare fitting on the original scale vs. fitting on the log-transformed scale.
+
+## Setup
+
+```{r}
+library(tidyverse)
