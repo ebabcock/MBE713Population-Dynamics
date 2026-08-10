@@ -1,0 +1,172 @@
+---
+title: "Exercise 0: Setting Up GitHub and Your Personal Repository"
+author: "MBE 713 — Population Dynamics"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+**Time:** ~20 minutes  
+**Goal:** Create a GitHub account, make a private repository, and share it
+with your instructor. You will use this repository to save and submit your
+work throughout the semester.
+
+You do **not** need RStudio for this exercise — everything is done in a
+web browser at [https://github.com](https://github.com).
+
+---
+
+## Step 1 — Create a GitHub Account
+
+1. Go to **[https://github.com](https://github.com)** and click **Sign up**
+2. Choose a **username**. Tips:
+   - Use something professional — this account is visible to future employers
+     and collaborators
+   - Lowercase letters and hyphens are best (e.g., `jane-smith`)
+   - Avoid random numbers if possible
+3. Use your **university email address** — this makes you eligible for free
+   GitHub Education benefits
+4. Complete the verification steps and confirm your email
+
+> ✅ **Checkpoint:** You can log in and view your profile page at
+> `https://github.com/YOUR-USERNAME`
+
+---
+
+## Step 2 — Create a New Private Repository
+
+1. Click the **+** icon in the top-right corner → **New repository**
+2. Fill in the form:
+   - **Repository name:** `MBE713-YourLastName`
+     (e.g., `MBE713-Smith`)
+   - **Description:** `MBE 713 Population Dynamics — student work`
+   - **Visibility:** Select **Private** ← *this is important!*
+   - ☑ Check **Add a README file**
+3. Click **Create repository**
+
+> ✅ **Checkpoint:** You should see your new repository page with a single
+> `README.md` file.
+
+---
+
+## Step 3 — Edit Your README
+
+A README is the front page of your repository. Let's add your information.
+
+1. Click on `README.md` in your repository
+2. Click the **pencil icon** (✏️) on the right to edit the file
+3. Replace all the existing text with the following, filling in your own
+   information:
+
+```
+# MBE 713 — Population Dynamics
+
+**Student:** Your Full Name  
+**Program:** Your Program  
+**GitHub username:** @your-username  
+
+## About this repository
+This repository contains my coursework for MBE 713, Population Dynamics,
+taught by Dr. Babcock at the University of Miami.
+```
+
+4. Scroll down to **Commit changes**
+5. In the commit message box, write: `Add student info to README`
+6. Leave **Commit directly to the main branch** selected
+7. Click **Commit changes**
+
+> ✅ **Checkpoint:** Your README now displays your name and program on the
+> repository front page.
+
+**Question:** What is a *commit*? Write a one-sentence definition in your
+own words.
+
+> *Your answer here:*
+
+---
+
+## Step 4 — Share Your Repository with the Instructor
+
+Your repository is private, so the instructor cannot see it yet.
+You need to add them as a **collaborator**.
+
+1. In your repository, click **Settings** (in the top menu bar)
+2. In the left sidebar, click **Collaborators**
+3. Click **Add people**
+4. Search for the instructor's GitHub username: **`ebabcock`**
+5. Select the correct account and click **Add ebabcock to this repository**
+
+> ✅ **Checkpoint:** You should see `ebabcock` listed as a collaborator
+> with "Pending" status until the invitation is accepted.
+
+---
+
+## Step 5 — Submit
+
+Submit the following in the course portal (or by email to your instructor):
+
+- Your **GitHub username**
+- The **full URL of your repository**
+  (e.g., `https://github.com/jsmith/MBE713-Smith`)
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| Can't find the **Settings** tab | You may be inside a file view. Click the repository name at the very top to return to the main repository page. |
+| **Collaborators** option is missing from Settings | Make sure the repository is yours — you can only manage collaborators on repositories you own. |
+| Can't find `ebabcock` when searching | Double-check the spelling. Confirm the account exists at `https://github.com/ebabcock`. |
+| Accidentally made the repository **Public** | Go to Settings → scroll to the **Danger Zone** at the bottom → **Change repository visibility** → Private. |
+| Forgot your password | Use **Forgot password** on the login page — this is why using your university email matters. |
+
+---
+
+## Concept Review
+
+Answer these questions to check your understanding.
+
+**1.** What is the difference between a **public** and a **private**
+repository on GitHub?
+
+> *Your answer here:*
+
+**2.** What is a **collaborator** on a GitHub repository?
+
+> *Your answer here:*
+
+**3.** Why do we write a message every time we **commit** a change?
+
+> *Your answer here:*
+
+**4.** What does the **README.md** file do?
+
+> *Your answer here:*
+
+---
+
+## Why Are We Doing This?
+
+| GitHub Concept | What You Just Did |
+|---|---|
+| **Repository** | Created a project folder tracked by Git |
+| **README** | Added a human-readable description of the project |
+| **Commit** | Saved a change with a descriptive message |
+| **Private repository** | Kept your work visible only to people you choose |
+| **Collaborator** | Granted another user read/write access to your private repo |
+
+You will use this same repository throughout the semester to save and
+submit your R scripts, plots, and analysis outputs. Every commit you make
+builds a timestamped record of your work — like a lab notebook that never
+gets lost.
