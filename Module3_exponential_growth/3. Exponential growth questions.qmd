@@ -9,18 +9,16 @@ editor: visual
 library(tidyverse)
 ```
 
-### Neal: Introduction to Population Biology (question 4.1).
+### Neal: Introduction to Population Biology question 4.1.
 
-Each individual of an annual plant species produces on average ten seeds. (a) Starting with a single individual, what will be the population size after 6 years, assuming all the seeds survive to produce adult plants the following generation? (b) A new variety of the plant produces 5 per cent more seeds, i.e. 10.5 seeds on average. What will be the potential number of offspring after 6 years from a single individual?
+Each individual of an annual plant species produces on average ten seeds. (a) Starting with a single individual, what will be the population size after 6 years, assuming all the seeds survive to produce adult plants the following generation? (b) A new variety of the plant produces 5 per cent more seeds, i.e. 10.5 seeds on average. What will be the potential number of offspring after 6 years from a single individual? (c) Make a plot of the two trends.
 
-Make a plot of the two trends.
-
-### Neal: Introduction to Population Biology (question 4.2).
+### Neal: Introduction to Population Biology question 4.2.
 
 \(a\) The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
 
 \(c\) How long will it take for the human population to multiply by 10?
 
-### Neal: 4.5.
+### Neal: Introduction to Population Biology question 4.5.
 
 A population increases fivefold over a 4-week period. What is the value of $\lambda$ per day, assuming exponential growth?
