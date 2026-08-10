@@ -1,5 +1,5 @@
 ---
-title: "Exercise 0: Setting Up GitHub and Your Personal Repository"
+title: "Setting Up GitHub and Your Personal Repository"
 author: "MBE 713 — Population Dynamics"
 date: "`r Sys.Date()`"
 output:
@@ -16,13 +16,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Overview
 
-**Time:** ~20 minutes  
 **Goal:** Create a GitHub account, make a private repository, and share it
 with your instructor. You will use this repository to save and submit your
 work throughout the semester.
 
-You do **not** need RStudio for this exercise — everything is done in a
-web browser at [https://github.com](https://github.com).
+You will set up your account with a web browser at [https://github.com](https://github.com).
+
+Written by Claude with GitHub Copilot. 
 
 ---
 
@@ -33,9 +33,8 @@ web browser at [https://github.com](https://github.com).
    - Use something professional — this account is visible to future employers
      and collaborators
    - Lowercase letters and hyphens are best (e.g., `jane-smith`)
-   - Avoid random numbers if possible
 3. Use your **university email address** — this makes you eligible for free
-   GitHub Education benefits
+   GitHub Education benefits. You can link to your other email addresses later for logon purposes. 
 4. Complete the verification steps and confirm your email
 
 > ✅ **Checkpoint:** You can log in and view your profile page at
@@ -71,27 +70,20 @@ A README is the front page of your repository. Let's add your information.
 ```
 # MBE 713 — Population Dynamics
 
-**Student:** Your Full Name  
+**Student:** Your Name  
 **Program:** Your Program  
 **GitHub username:** @your-username  
 
-## About this repository
-This repository contains my coursework for MBE 713, Population Dynamics,
-taught by Dr. Babcock at the University of Miami.
+Feel free to add any other information. 
 ```
 
 4. Scroll down to **Commit changes**
-5. In the commit message box, write: `Add student info to README`
+5. In the commit message box, write something informaive like: `Add student info to README`
 6. Leave **Commit directly to the main branch** selected
 7. Click **Commit changes**
 
 > ✅ **Checkpoint:** Your README now displays your name and program on the
 > repository front page.
-
-**Question:** What is a *commit*? Write a one-sentence definition in your
-own words.
-
-> *Your answer here:*
 
 ---
 
@@ -113,7 +105,7 @@ You need to add them as a **collaborator**.
 
 ## Step 5 — Submit
 
-Submit the following in the course portal (or by email to your instructor):
+Submit the following in the Canvas. 
 
 - Your **GitHub username**
 - The **full URL of your repository**
@@ -133,38 +125,7 @@ Submit the following in the course portal (or by email to your instructor):
 
 ---
 
-## Concept Review
-
-Answer these questions to check your understanding.
-
-**1.** What is the difference between a **public** and a **private**
-repository on GitHub?
-
-> *Your answer here:*
-
-**2.** What is a **collaborator** on a GitHub repository?
-
-> *Your answer here:*
-
-**3.** Why do we write a message every time we **commit** a change?
-
-> *Your answer here:*
-
-**4.** What does the **README.md** file do?
-
-> *Your answer here:*
-
----
-
-## Why Are We Doing This?
-
-| GitHub Concept | What You Just Did |
-|---|---|
-| **Repository** | Created a project folder tracked by Git |
-| **README** | Added a human-readable description of the project |
-| **Commit** | Saved a change with a descriptive message |
-| **Private repository** | Kept your work visible only to people you choose |
-| **Collaborator** | Granted another user read/write access to your private repo |
+## Conclusion
 
 You will use this same repository throughout the semester to save and
 submit your R scripts, plots, and analysis outputs. Every commit you make
