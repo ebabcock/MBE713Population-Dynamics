@@ -1,0 +1,30 @@
+---
+title: "In class Aug 20"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+#### 1. Work with an existing repository
+
+- Look in the class repository on GitHub and in the desktop. I will make a new folder in module 2 called “In_class_exercise”
+
+- Pull the repository, open the folder, and make a new R script in the folder called YourName_module2.r.
+
+- the R code, make a summary of bruv.csv, and plot of bruv.csv. Commit and push your new code.
+
+#### 2. Make your own repository
+
+- Use the tutorial called Exercise Github Setup to make your own private repository
+
+- invite the professor.
+
+- From now on, keep your code in your GitHub folder, and push it so that I can look at it when you turn something in.
+
+#### 3. Put some code in your repository and push
+
+- Copy the file InClassExampleModule2.r and the bruv.csv file into your new repository.
+
+- Make some changes to the code, e.g. to change the look of the figure.
+
+- Push the revised file

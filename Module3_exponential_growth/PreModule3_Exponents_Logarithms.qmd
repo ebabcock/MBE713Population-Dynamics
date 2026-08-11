@@ -1,6 +1,6 @@
 ---
 title: "Pre-Module 3 Optional Tutorial: Exponents & Logarithms"
-author: "Elizabeth A. Babcock"
+author: "Claude in GitHub Copilot, from prompts by Elizabeth A. Babcock"
 format: html
 editor: visual
 ---
@@ -12,10 +12,10 @@ editor: visual
 
 By the end of this tutorial you should be able to:
 
--   Explain what an exponent is and apply the basic rules of exponents algebraically.
--   Explain what a logarithm is and apply the basic rules of logarithms.
--   Describe the mathematical constant *e* and why it arises from continuous growth.
--   Use `exp()` and `log()` in R with confidence.
+- Explain what an exponent is and apply the basic rules of exponents algebraically.
+- Explain what a logarithm is and apply the basic rules of logarithms.
+- Describe the mathematical constant *e* and why it arises from continuous growth.
+- Use `exp()` and `log()` in R with confidence.
 
 ------------------------------------------------------------------------
 
@@ -23,23 +23,21 @@ By the end of this tutorial you should be able to:
 
 An exponent tells you how many times to multiply a base number by itself:
 
-$$
-b^n = \underbrace{b \times b \times \cdots \times b}_{n \text{ times}}
-$$
+$$b^n = \underbrace{b \times b \times \cdots \times b}_{n \text{ times}}$$
 
 For example:
 
 | Expression | Calculation | Result |
 |------------|-------------|--------|
-| $2^1$  | 2 | 2 |
-| $2^2$  | 2 × 2 | 4 |
-| $2^3$  | 2 × 2 × 2 | 8 |
-| $2^{10}$ | 2 × 2 × … | 1024 |
+| $2^1$      | 2           | 2      |
+| $2^2$      | 2 × 2       | 4      |
+| $2^3$      | 2 × 2 × 2   | 8      |
+| $2^{10}$   | 2 × 2 × …   | 1024   |
 
 ### Key rules of exponents
 
 | Rule | Formula | Example |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | Product rule | $b^m \times b^n = b^{m+n}$ | $2^3 \times 2^4 = 2^7 = 128$ |
 | Quotient rule | $b^m / b^n = b^{m-n}$ | $2^5 / 2^2 = 2^3 = 8$ |
 | Power of a power | $(b^m)^n = b^{m \times n}$ | $(2^3)^2 = 2^6 = 64$ |
@@ -66,24 +64,20 @@ For example:
 
 A logarithm is the **inverse** of exponentiation. It answers the question:
 
-> *"To what power must I raise the base $b$ to get $x$?"*
+> *"To what power must I raise the base* $b$ to get $x$?"
 
-$$
-\log_b(x) = n \quad \Longleftrightarrow \quad b^n = x
-$$
+$$\log_b(x) = n \quad \Longleftrightarrow \quad b^n = x$$
 
 Examples:
 
--   $\log_2(8) = 3$ because $2^3 = 8$
--   $\log_{10}(1000) = 3$ because $10^3 = 1000$
+- $\log_2(8) = 3$ because $2^3 = 8$
+- $\log_{10}(1000) = 3$ because $10^3 = 1000$
 
 ### The natural logarithm
 
 In ecology and population biology, we almost always use the **natural logarithm**, whose base is the mathematical constant $e \approx 2.718$. It is written $\ln(x)$ in mathematics and simply `log(x)` in R.
 
-$$
-\ln(x) = \log_e(x)
-$$
+$$\ln(x) = \log_e(x)$$
 
 ::: callout-warning
 **R pitfall.** `log()` in R is the *natural* logarithm (base $e$), **not** base 10. Use `log10()` for base-10 logs. In population dynamics, `log()` is almost always what you want.
@@ -92,11 +86,11 @@ $$
 ### Key rules of logarithms
 
 | Rule | Formula | Why it matters |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | Log of a product | $\ln(ab) = \ln(a) + \ln(b)$ | Turns multiplication into addition |
 | Log of a quotient | $\ln(a/b) = \ln(a) - \ln(b)$ | Turns division into subtraction |
 | Log of a power | $\ln(a^n) = n \cdot \ln(a)$ | Brings exponents down as multipliers |
-| Log of 1 | $\ln(1) = 0$ | |
+| Log of 1 | $\ln(1) = 0$ |  |
 | Log of $e$ | $\ln(e) = 1$ | Definition of the natural log |
 | Inverse property | $\ln(e^x) = x$ and $e^{\ln(x)} = x$ | `log` and `exp` cancel each other |
 
@@ -127,12 +121,12 @@ $e \approx 2.71828$ is a fundamental mathematical constant. It appears whenever 
 
 Imagine a bank account that earns 100% interest per year. If interest is compounded more and more frequently, the final balance after one year approaches a limit:
 
-| Compounding | Formula | Result |
-|---|---|---|
-| Once per year | $(1 + 1)^1$ | 2.000 |
-| Monthly | $(1 + 1/12)^{12}$ | 2.613 |
-| Daily | $(1 + 1/365)^{365}$ | 2.7146 |
-| Continuously | $\lim_{n \to \infty}(1 + 1/n)^n$ | $e = 2.71828\ldots$ |
+| Compounding   | Formula                          | Result              |
+|---------------|----------------------------------|---------------------|
+| Once per year | $(1 + 1)^1$                      | 2.000               |
+| Monthly       | $(1 + 1/12)^{12}$                | 2.613               |
+| Daily         | $(1 + 1/365)^{365}$              | 2.7146              |
+| Continuously  | $\lim_{n \to \infty}(1 + 1/n)^n$ | $e = 2.71828\ldots$ |
 
 This limit defines $e$. Populations reproduce more-or-less continuously rather than all at once, so $e$ appears naturally in the equations you will encounter in Module 3.
 
@@ -161,13 +155,13 @@ exp(-1)   # 1/e ≈ 0.368  (decay)
 
 ## 4. Quick Reference
 
-| R function | What it does | Example |
-|---|---|---|
-| `exp(x)` | Calculates $e^x$ | `exp(1)` → 2.718 |
-| `log(x)` | Natural log $\ln(x)$ | `log(2.718)` → 1.0 |
-| `log10(x)` | Log base 10 | `log10(1000)` → 3 |
-| `x^n` | $x$ to the power $n$ | `2^8` → 256 |
-| `sqrt(x)` | Square root (= $x^{0.5}$) | `sqrt(9)` → 3 |
+| R function | What it does              | Example            |
+|------------|---------------------------|--------------------|
+| `exp(x)`   | Calculates $e^x$          | `exp(1)` → 2.718   |
+| `log(x)`   | Natural log $\ln(x)$      | `log(2.718)` → 1.0 |
+| `log10(x)` | Log base 10               | `log10(1000)` → 3  |
+| `x^n`      | $x$ to the power $n$      | `2^8` → 256        |
+| `sqrt(x)`  | Square root (= $x^{0.5}$) | `sqrt(9)` → 3      |
 
 ------------------------------------------------------------------------
 
@@ -221,11 +215,11 @@ $e^0 = \mathbf{1}$. Any number raised to the power zero equals 1 (the zero-expon
 
 ## Summary
 
--   **Exponents** describe repeated multiplication: $b^n$ multiplies $b$ by itself $n$ times.
--   **Logarithms** are the inverse of exponents: $\ln(x)$ asks "to what power must I raise $e$ to get $x$?"
--   The **natural logarithm** (base $e$) is the standard in ecology; in R it is `log()`.
--   `log()` and `exp()` are inverses: they cancel each other.
--   The constant **$e \approx 2.718$** arises naturally from continuous compounding, making it the right base for continuous growth processes.
+- **Exponents** describe repeated multiplication: $b^n$ multiplies $b$ by itself $n$ times.
+- **Logarithms** are the inverse of exponents: $\ln(x)$ asks "to what power must I raise $e$ to get $x$?"
+- The **natural logarithm** (base $e$) is the standard in ecology; in R it is `log()`.
+- `log()` and `exp()` are inverses: they cancel each other.
+- The constant $e \approx 2.718$ arises naturally from continuous compounding, making it the right base for continuous growth processes.
 
 You are now ready for Module 3. Good luck!
 

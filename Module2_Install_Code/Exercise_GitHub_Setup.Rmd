@@ -103,16 +103,6 @@ You need to add them as a **collaborator**.
 
 ---
 
-## Step 5 — Submit
-
-Submit the following in the Canvas. 
-
-- Your **GitHub username**
-- The **full URL of your repository**
-  (e.g., `https://github.com/jsmith/MBE713-Smith`)
-
----
-
 ## Troubleshooting
 
 | Problem | Solution |
