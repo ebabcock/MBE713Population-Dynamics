@@ -28,3 +28,9 @@ output: html_document
 - Make some changes to the code, e.g. to change the look of the figure.
 
 - Push the revised file
+
+#### 4. Pull revised code. 
+
+- Before class on the 25th, fetch and pull the repository again, and respond to the changes the professor put in the file. 
+
+

@@ -5,9 +5,6 @@ format: html
 editor: visual
 ---
 
-> **Optional background preparation — estimated time: \~20 minutes**\
-> This tutorial covers the mathematical tools you will need for Module 3. It focuses purely on exponents and logarithms as concepts; Module 3 itself will show you how they apply to population growth.
-
 ## Learning objectives
 
 By the end of this tutorial you should be able to:
@@ -37,7 +34,7 @@ For example:
 ### Key rules of exponents
 
 | Rule | Formula | Example |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Product rule | $b^m \times b^n = b^{m+n}$ | $2^3 \times 2^4 = 2^7 = 128$ |
 | Quotient rule | $b^m / b^n = b^{m-n}$ | $2^5 / 2^2 = 2^3 = 8$ |
 | Power of a power | $(b^m)^n = b^{m \times n}$ | $(2^3)^2 = 2^6 = 64$ |
@@ -86,7 +83,7 @@ $$\ln(x) = \log_e(x)$$
 ### Key rules of logarithms
 
 | Rule | Formula | Why it matters |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Log of a product | $\ln(ab) = \ln(a) + \ln(b)$ | Turns multiplication into addition |
 | Log of a quotient | $\ln(a/b) = \ln(a) - \ln(b)$ | Turns division into subtraction |
 | Log of a power | $\ln(a^n) = n \cdot \ln(a)$ | Brings exponents down as multipliers |
@@ -221,9 +218,4 @@ $e^0 = \mathbf{1}$. Any number raised to the power zero equals 1 (the zero-expon
 - `log()` and `exp()` are inverses: they cancel each other.
 - The constant $e \approx 2.718$ arises naturally from continuous compounding, making it the right base for continuous growth processes.
 
-You are now ready for Module 3. Good luck!
-
 ------------------------------------------------------------------------
-
-*MBE 713 Population Dynamics — Elizabeth A. Babcock*\
-*Optional preparatory material for Module 3 (Exponential Growth)*

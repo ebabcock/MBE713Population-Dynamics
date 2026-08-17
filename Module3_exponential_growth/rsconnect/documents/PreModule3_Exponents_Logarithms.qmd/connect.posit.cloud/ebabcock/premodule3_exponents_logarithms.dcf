@@ -1,0 +1,12 @@
+name: premodule3_exponents_logarithms
+title: PreModule3_Exponents_Logarithms
+username: ebabcock
+account: ebabcock
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a01150-6e13-e9dd-9d9a-03ffacf8a907
+bundleId:
+url: https://connect.posit.cloud/ebabcock/content/01a01150-6e13-e9dd-9d9a-03ffacf8a907
+version: 1
+asMultiple: FALSE
+asStatic: TRUE
