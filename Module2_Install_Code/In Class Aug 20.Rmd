@@ -5,7 +5,11 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+Look at the file called RStudio_Git_Cheatsheet for all the things you can do in the git panel in RStudio.
+
 #### 1. Work with an existing repository
+
+- Finish the Week 1 technology check
 
 - Look in the class repository on GitHub and in the desktop. I will make a new folder in module 2 called “In_class_exercise”
 
@@ -17,7 +21,7 @@ output: html_document
 
 - Use the tutorial called Exercise Github Setup to make your own private repository
 
-- invite the professor.
+- invite the professor @ebabcock
 
 - From now on, keep your code in your GitHub folder, and push it so that I can look at it when you turn something in.
 
@@ -31,9 +35,9 @@ output: html_document
 
 #### 4. Pull revised code.
 
-- Before class on the 25th, fetch and pull the repository again, and respond to the changes the professor put in the file.
+- Fetch and pull the repository again, and respond to the changes the professor put in the file.
 
-### 5. Branching and resolving conflicts
+#### 5. Branching and resolving conflicts
 
 - Do the branching tutorial. After you finish this, make a conflict to see how this works.  
 
@@ -42,3 +46,10 @@ output: html_document
 - Make a different change in the *same* line of the readme file in main on your computer. Commit and push. 
 
 - On the website, do a merge request to merge add-notes into main.  Resolve any conflicts that come up.  
+
+#### Prepare for Module 3 on exponential growth
+
+- If you are out of practice with logarithms and exponents, do the bonus tutorial
+
+- Feel free to read the book chapter, included with module 3. 
+

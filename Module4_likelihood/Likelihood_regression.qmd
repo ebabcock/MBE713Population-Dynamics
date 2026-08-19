@@ -1,5 +1,5 @@
 ---
-title: "Likelihood totorial"
+title: "Likelihood for linear regression"
 format: html
 editor: visual
 ---
@@ -75,6 +75,8 @@ So, we can fit the model with likelihood as well. The likelihood algorithm is:
 
 1.  Make a function that calculates the negative log likelihood.
 2.  Minimize the function
+
+Note that we have one more parameter than when we used SS, the residual variance, which is how spread out the data are around the regression line. We need this to calculate the normal probabilities.
 
 ```{r}
 RegressionLL<-function(par,x,y) {
@@ -170,5 +172,5 @@ Likelihood is much more general than sums of squares, and can be used with distr
 
 ## In class examples
 
-1.  Using the human data the exponential growth module, fit a linear regression with likelihood
-2.  Now fit the non-linear version. In other words, don't log transform. Use the model directly.
+1.  Using the human data from the exponential growth module, fit a linear regression with likelihood
+2.  Now fit the non-linear version. In other words, don't log transform. Use the model directly, assuming the data are normally distributed around the un-transformed exponential curve.
