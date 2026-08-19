@@ -29,8 +29,16 @@ output: html_document
 
 - Push the revised file
 
-#### 4. Pull revised code. 
+#### 4. Pull revised code.
 
-- Before class on the 25th, fetch and pull the repository again, and respond to the changes the professor put in the file. 
+- Before class on the 25th, fetch and pull the repository again, and respond to the changes the professor put in the file.
 
+### 5. Branching and resolving conflicts
 
+- Do the branching tutorial. After you finish this, make a conflict to see how this works.  
+
+- In your add-notes branch, make a change in a line of the readme file, and commit. 
+
+- Make a different change in the *same* line of the readme file in main on your computer. Commit and push. 
+
+- On the website, do a merge request to merge add-notes into main.  Resolve any conflicts that come up.  

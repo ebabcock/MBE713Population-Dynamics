@@ -1,0 +1,160 @@
+---
+title: "RStudio Git Tab Cheat Sheet"
+author: "MBE 713 — Population Dynamics"
+date: today
+format:
+  html:
+    toc: true
+    toc-float: true
+    theme: flatly
+    highlight-style: github
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Overview
+
+The **Git** tab in RStudio (usually top-right pane) lets you do most
+everyday Git operations without touching the command line. This is a
+quick reference for the buttons and icons you'll see there.
+
+------------------------------------------------------------------------
+
+## The File List
+
+| Column / Icon | Meaning |
+|------------------------------------|------------------------------------|
+| Checkbox | Whether the file is **staged** — included in the next commit. Select all the files (e.g. cntrl-a) and click any check box to select all |
+| Status letter | `M` modified, `A` added, `D` deleted, `??` untracked (new, not yet tracked by Git), `R` renamed |
+
+> All files must be **staged** (checkbox ticked) before they can be
+> committed.
+
+------------------------------------------------------------------------
+
+## Diff / Review Changes
+
+- Click a file's name (not the checkbox) to open the **diff viewer**
+- Red lines = removed, green lines = added
+- This is your chance to review exactly what will be committed — always worth checking before committing
+
+------------------------------------------------------------------------
+
+## Commit
+
+1.  Tick the checkboxes for the files you want to include
+2.  Click **Commit** — this opens the commit dialog
+3.  Write a short, informative **commit message** (e.g.,
+    `Fix data cleaning bug`)
+4.  Click **Commit**
+
+A commit is a saved snapshot of your staged changes, stored locally. It
+is **not** sent to GitHub until you **push**.
+
+------------------------------------------------------------------------
+
+## Push
+
+- Click the green **up arrow** (Push) to send your local commits to   GitHub
+- You should see the commits you pushed on the GitHub website as soon as you refresh the page. 
+- Do this regularly, so all versions are up to date.
+
+------------------------------------------------------------------------
+
+## Pull
+
+- Click the blue **down arrow** (Pull) to fetch and merge changes from
+  GitHub into your local branch
+- Do this regularly, and especially before starting new work, to avoid
+  falling behind or creating conflicts
+
+------------------------------------------------------------------------
+
+## History
+
+- Click the **clock icon** to open the commit history
+- Shows every commit on the current branch: message, author, date, and
+  hash
+- Click any commit to see the diff introduced by that commit
+- Useful for figuring out *when* a change was made or *what* changed
+
+------------------------------------------------------------------------
+
+## Ignore
+
+- Select a file → click **More** (gear icon) → **Ignore...**
+- Opens `.gitignore`, where you can add file/folder patterns Git should
+  never track or upload to GitHub (e.g., `*.Rproj.user`, `.Rhistory`, large data files, private data or notes)
+- Ignored files disappear from the Git tab's file list and are not pushed to GitHub but remain on your hard drive
+
+------------------------------------------------------------------------
+
+## Revert
+
+- Select a file → **More** (gear icon) → **Revert...**
+- Discards **uncommitted** changes to that file, restoring it to the
+  last committed version
+- ⚠️ This is destructive — uncommitted edits are lost permanently
+
+> To undo something already **committed and pushed**, don't use Revert. Look up how to revert to a previous commit. 
+
+------------------------------------------------------------------------
+
+## Branches
+
+The current branch name is shown in a dropdown on the right side of the
+Git tab toolbar.
+
+### Create a new branch
+
+1.  Click the branch dropdown → **New Branch...**
+2.  Name it (e.g., `add-analysis`)
+3.  Leave **Sync branch with remote** checked to also create it on
+    GitHub
+4.  Click **Create**
+
+You are automatically switched onto the new branch.
+
+### Switch between branches
+
+1.  Click the branch dropdown
+2.  Select the branch you want from the list
+3.  RStudio switches your working files to match that branch
+
+> Commit or stash changes before switching branches — RStudio will warn
+> you if switching would overwrite uncommitted work.
+
+### Merge a branch
+
+- The Git tab does **not** have a direct "merge" button
+- Push your branch, then open a **pull
+  request on GitHub.com** and merge it there (see
+  `Exercise_GitHub_Branching.Rmd`)
+
+------------------------------------------------------------------------
+
+## Quick Reference Table
+
+| Action | Where in Git tab |
+|----|----|
+| See what changed | Click file name → diff viewer |
+| Stage a file | Tick its checkbox |
+| Save a snapshot | **Commit** button |
+| Send commits to GitHub | **Push** (green up arrow) |
+| Get others' commits | **Pull** (blue down arrow) |
+| View past commits | **History** (clock icon) |
+| Stop tracking a file | **More** → **Ignore...** |
+| Discard uncommitted changes | **More** → **Revert...** |
+| Create a branch | Branch dropdown → **New Branch...** |
+| Switch branches | Branch dropdown → select branch |
+| Merge a branch | Not in Git tab — use a pull request on GitHub.com |
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+The Git tab covers the everyday workflow — stage, commit, push, pull —
+plus branch creation and switching. For anything it doesn't do directly
+(merging, resolving conflicts, undoing pushed commits), GitHub.com's web
+interface, the Git Terminal or GitHub desktop are the next steps.

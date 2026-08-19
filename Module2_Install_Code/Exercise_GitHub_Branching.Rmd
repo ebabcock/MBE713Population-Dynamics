@@ -1,0 +1,126 @@
+---
+title: "Making and Merging a Branch on GitHub"
+author: "MBE 713 — Population Dynamics"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+**Goal:** Create a new branch in your repository, make a change on that
+branch, and merge it back into `main` using a pull request.
+
+A **branch** is a copy of your repository where you can make changes
+without affecting the `main` branch. This lets you try things out or work
+on a new piece of analysis, then bring the changes back in once you're
+happy with them.
+
+This exercise uses the repository you created in
+`Exercise_GitHub_Setup.Rmd`, entirely through the web browser at
+[https://github.com](https://github.com).
+
+Written by Claude with GitHub Copilot.
+
+---
+
+## Step 1 — Create a New Branch
+
+1. Go to your repository's main page
+2. Click the branch dropdown, currently showing **main** (top-left, above
+   the file list)
+3. Type a new branch name, e.g. `add-notes`
+4. Click **Create branch: add-notes from 'main'**
+
+> ✅ **Checkpoint:** The branch dropdown now shows `add-notes` instead of
+> `main`. You are now working on your new branch.
+
+---
+
+## Step 2 — Make a Change on the Branch
+
+1. While still on the `add-notes` branch, click on `README.md`
+2. Click the **pencil icon** (✏️) to edit the file
+3. Add a new line at the bottom, e.g.:
+
+```
+## Notes
+This is a test edit made on the add-notes branch.
+```
+
+4. Scroll down to **Commit changes**
+5. Write a commit message, e.g. `Add notes section`
+6. Select **Commit directly to the `add-notes` branch** (this option
+   appears because you are no longer on `main`)
+7. Click **Commit changes**
+
+> ✅ **Checkpoint:** Your edit is saved on `add-notes`. If you switch the
+> branch dropdown back to `main`, the change will **not** be there — it
+> only exists on `add-notes` so far.
+
+---
+
+## Step 3 — Open a Pull Request
+
+A **pull request (PR)** proposes merging your branch's changes into
+`main`.
+
+1. GitHub often shows a banner: *"add-notes had recent pushes"* with a
+   **Compare & pull request** button — click it. (If you don't see the
+   banner, click the **Pull requests** tab → **New pull request**, and
+   set base = `main`, compare = `add-notes`.)
+2. Add a title and short description of what you changed
+3. Click **Create pull request**
+
+> ✅ **Checkpoint:** You should see a pull request page showing the diff
+> (the lines added/removed) between `add-notes` and `main`.
+
+---
+
+## Step 4 — Merge the Pull Request
+
+1. On the pull request page, scroll down and click **Merge pull request**
+2. Click **Confirm merge**
+3. (Optional) Click **Delete branch** to clean up `add-notes` now that its
+   changes are in `main`
+
+> ✅ **Checkpoint:** Switch the branch dropdown to `main` and open
+> `README.md` — your notes section should now appear there.
+
+---
+
+## Why Bother With Branches?
+
+For solo work on small files, committing directly to `main` (as in the
+setup exercise) is fine. Branches become useful when you want to:
+
+- Try an analysis without risking your working `main` version
+- Keep `main` clean and functional while experimenting
+- Collaborate with others without overwriting each other's work
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| Don't see the branch dropdown | Make sure you're on the repository's main **Code** page, not inside a file. |
+| No "Compare & pull request" banner appears | Go to the **Pull requests** tab → **New pull request** and manually select `main` and `add-notes`. |
+| **Merge pull request** button is greyed out or shows a conflict | This means the same lines were changed on both branches. For this simple exercise, that shouldn't happen — ask for help if it does. |
+| Accidentally committed to `main` instead of the branch | Double-check the branch dropdown before editing next time. You can still create a branch afterward and continue from there. |
+
+---
+
+## Conclusion
+
+You now know how to isolate changes on a branch and bring them into
+`main` via a pull request — the basic workflow behind most collaborative
+work on GitHub.
