@@ -6,3 +6,4 @@ ggplot(bruv,aes(x=Zone,fill=Sharks))+
   scale_fill_manual(values=c("darkgreen","lavender"))+
   labs(x="",y="Number of BRUV samples",fill="Sharks present?")+
   theme(legend.position="top")
+# I edited this on the website
