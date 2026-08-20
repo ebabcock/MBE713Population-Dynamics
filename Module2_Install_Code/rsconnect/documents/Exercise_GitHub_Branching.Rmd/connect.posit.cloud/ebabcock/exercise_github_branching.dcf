@@ -1,0 +1,12 @@
+name: exercise_github_branching
+title: Exercise_GitHub_Branching
+username: ebabcock
+account: ebabcock
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a02024-be6b-5a4b-8b2f-2a52f8622c45
+bundleId:
+url: https://connect.posit.cloud/ebabcock/content/01a02024-be6b-5a4b-8b2f-2a52f8622c45
+version: 1
+asMultiple: FALSE
+asStatic: TRUE
