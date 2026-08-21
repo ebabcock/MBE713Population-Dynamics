@@ -1,0 +1,177 @@
+---
+title: "GitHub Desktop Cheat Sheet"
+author: "MBE 713 — Population Dynamics"
+date: today
+format:
+  html:
+    toc: true
+    toc-float: true
+    theme: flatly
+    highlight-style: github
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Overview
+
+**GitHub Desktop** is a standalone application (separate from RStudio)
+that lets you do most everyday Git operations through a graphical
+interface instead of the command line. This is a quick reference for
+the buttons and panes you'll see there.
+
+------------------------------------------------------------------------
+
+## The Changes List
+
+| Column / Icon | Meaning |
+|------------------------------------|------------------------------------|
+| Checkbox | Whether the file is **staged** — included in the next commit. Select **Select All** at the top of the list (or check the box next to "Changes") to select all files |
+| Icon next to file name | A yellow dot = modified, a green plus = added (new/untracked), a red minus = deleted |
+
+> All files must be **staged** (checkbox ticked) before they can be
+> committed. By default, GitHub Desktop stages all changed files
+> automatically when you open it.
+
+------------------------------------------------------------------------
+
+## Diff / Review Changes
+
+- Click a file's name (not the checkbox) in the left-hand list to open
+  the **diff viewer** on the right
+- Red lines = removed, green lines = added
+- This is your chance to review exactly what will be committed —
+  always worth checking before committing
+
+------------------------------------------------------------------------
+
+## Commit
+
+1.  Tick the checkboxes for the files you want to include
+2.  Type a short, informative **summary** in the box at the
+    bottom-left (e.g., `Fix data cleaning bug`)
+3.  Optionally add a longer **description** below the summary box
+4.  Click **Commit to \<branch-name\>**
+
+A commit is a saved snapshot of your staged changes, stored locally.
+It is **not** sent to GitHub until you **push**.
+
+------------------------------------------------------------------------
+
+## Push
+
+- Click **Push origin** in the top toolbar to send your local commits
+  to GitHub
+- The button shows a number (e.g., "Push origin 1") indicating how
+  many commits are waiting to be pushed
+- You should see the commits you pushed on the GitHub website as soon
+  as you refresh the page
+- Do this regularly, so all versions are up to date
+
+------------------------------------------------------------------------
+
+## Pull (Fetch origin)
+
+- Click **Fetch origin** in the top toolbar to check for new commits
+  on GitHub
+- If there are new commits, the button changes to **Pull origin** —
+  click it to merge them into your local branch
+- Do this regularly, and especially before starting new work, to avoid
+  falling behind or creating conflicts
+
+------------------------------------------------------------------------
+
+## History
+
+- Click the **History** tab (next to the **Changes** tab, top-left)
+- Shows every commit on the current branch: summary, author, date, and
+  hash
+- Click any commit to see the diff introduced by that commit
+- Useful for figuring out *when* a change was made or *what* changed
+
+------------------------------------------------------------------------
+
+## Ignore
+
+- Right-click a file in the **Changes** list → **Ignore file** (or
+  **Ignore file extension...**)
+- Adds the file/pattern to `.gitignore`, so Git never tracks or
+  uploads it to GitHub (e.g., `*.Rproj.user`, `.Rhistory`, large data
+  files, private data or notes)
+- Ignored files disappear from the Changes list and are not pushed to
+  GitHub but remain on your hard drive
+
+------------------------------------------------------------------------
+
+## Discard Changes (Revert)
+
+- Right-click a file in the **Changes** list → **Discard changes...**
+- Discards **uncommitted** changes to that file, restoring it to the
+  last committed version
+- ⚠️ This is destructive — uncommitted edits are lost permanently
+  (GitHub Desktop moves them to the Recycle Bin/Trash as a small
+  safety net)
+
+> To undo something already **committed and pushed**, don't use
+> Discard Changes. Look up how to revert to a previous commit.
+
+------------------------------------------------------------------------
+
+## Branches
+
+The current branch name is shown in the **Current branch** dropdown in
+the top toolbar.
+
+### Create a new branch
+
+1.  Click **Current branch** → **New branch**
+2.  Name it (e.g., `add-analysis`)
+3.  Click **Create branch**
+4.  Click **Publish branch** to also create it on GitHub
+
+You are automatically switched onto the new branch.
+
+### Switch between branches
+
+1.  Click **Current branch**
+2.  Select the branch you want from the list
+3.  GitHub Desktop switches your working files to match that branch
+
+> Commit or stash changes before switching branches — GitHub Desktop
+> will warn you if switching would overwrite uncommitted work.
+
+### Merge a branch
+
+- The **Branch** menu → **Merge into current branch...** lets you
+  merge one local branch into another
+- More commonly, push your branch, then open a **pull request on
+  GitHub.com** and merge it there (see
+  `Exercise_GitHub_Branching.Rmd`)
+
+------------------------------------------------------------------------
+
+## Quick Reference Table
+
+| Action | Where in GitHub Desktop |
+|----|----|
+| See what changed | Click file name → diff viewer |
+| Stage a file | Tick its checkbox |
+| Save a snapshot | Summary box → **Commit to \<branch\>** |
+| Send commits to GitHub | **Push origin** |
+| Get others' commits | **Fetch origin** → **Pull origin** |
+| View past commits | **History** tab |
+| Stop tracking a file | Right-click → **Ignore file** |
+| Discard uncommitted changes | Right-click → **Discard changes...** |
+| Create a branch | **Current branch** → **New branch** |
+| Switch branches | **Current branch** → select branch |
+| Merge a branch | **Branch** menu, or a pull request on GitHub.com |
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+GitHub Desktop covers the everyday workflow — stage, commit, push,
+pull — plus branch creation and switching, all outside of RStudio. For
+anything it doesn't do directly (resolving complex conflicts, undoing
+pushed commits), GitHub.com's web interface or the Git command line
+are the next steps.
