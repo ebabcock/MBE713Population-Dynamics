@@ -1,0 +1,41 @@
+---
+title: "Due August 25"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+If you are able to set up Git correctly in R, look at the file called RStudio_Git_Cheatsheet for all the things you can do in the git panel in RStudio. GitHub desktop does all the same functions, just in a slightly different user interface. 
+
+If you are using GitHub Desktop, see the file called GitHub_Desktop_Cheatsheet for all the things you can do in GitHub Desktop. You may use either throughout the class.
+
+#### 1. Work with an existing repository
+
+- Make a new folder with your name in MBE713Population-Dynamics/Module2_Install_Code/ and put some code in it.  See were I made a comment, and reply with your own comment. Push the response.
+
+#### 2. Make your own repository
+
+- Use the tutorial called Exercise Github Setup to make your own private repository. This is done entirely on the GitHub website. 
+
+- invite the professor @ebabcock
+
+- From now on, keep your code in your GitHub folder, and push it so that I can look at it when you turn something in.
+
+#### 3. Put some code in your repository and push
+
+- Copy the file InClassExampleModule2.r and the bruv.csv file into your new repository.
+
+- Make some changes to the code, e.g. to change the look of the figure.
+
+- Push the revised file
+
+#### 4. Pull revised code.
+
+- Fetch and pull the repository again, and respond to the changes the professor put in the file.
+
+#### Prepare for Module 3 on exponential growth
+
+- If you are out of practice with logarithms and exponents, do the bonus tutorial
+
+- Feel free to read the book chapter, included with module 3. 
+

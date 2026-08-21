@@ -9,7 +9,7 @@
 <meta name="author" content="MBE 713 — Population Dynamics">
 <meta name="dcterms.date" content="2026-08-21">
 
-<title>RStudio Git Tab Cheat Sheet</title>
+<title>GitHub Desktop Cheat Sheet</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -28,17 +28,17 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="RStudio_Git_Cheatsheet_files/libs/clipboard/clipboard.min.js"></script>
-<script src="RStudio_Git_Cheatsheet_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="RStudio_Git_Cheatsheet_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="RStudio_Git_Cheatsheet_files/libs/quarto-html/popper.min.js"></script>
-<script src="RStudio_Git_Cheatsheet_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="RStudio_Git_Cheatsheet_files/libs/quarto-html/anchor.min.js"></script>
-<link href="RStudio_Git_Cheatsheet_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="RStudio_Git_Cheatsheet_files/libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="RStudio_Git_Cheatsheet_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="RStudio_Git_Cheatsheet_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="RStudio_Git_Cheatsheet_files/libs/bootstrap/bootstrap-03a7401e90b113e2ea6b0337a8acb8ee.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="GitHubDesktop_Cheatsheet_files/libs/clipboard/clipboard.min.js"></script>
+<script src="GitHubDesktop_Cheatsheet_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="GitHubDesktop_Cheatsheet_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="GitHubDesktop_Cheatsheet_files/libs/quarto-html/popper.min.js"></script>
+<script src="GitHubDesktop_Cheatsheet_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="GitHubDesktop_Cheatsheet_files/libs/quarto-html/anchor.min.js"></script>
+<link href="GitHubDesktop_Cheatsheet_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="GitHubDesktop_Cheatsheet_files/libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="GitHubDesktop_Cheatsheet_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="GitHubDesktop_Cheatsheet_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="GitHubDesktop_Cheatsheet_files/libs/bootstrap/bootstrap-03a7401e90b113e2ea6b0337a8acb8ee.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -52,14 +52,14 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#the-file-list" id="toc-the-file-list" class="nav-link" data-scroll-target="#the-file-list">The File List</a></li>
+  <li><a href="#the-changes-list" id="toc-the-changes-list" class="nav-link" data-scroll-target="#the-changes-list">The Changes List</a></li>
   <li><a href="#diff-review-changes" id="toc-diff-review-changes" class="nav-link" data-scroll-target="#diff-review-changes">Diff / Review Changes</a></li>
   <li><a href="#commit" id="toc-commit" class="nav-link" data-scroll-target="#commit">Commit</a></li>
   <li><a href="#push" id="toc-push" class="nav-link" data-scroll-target="#push">Push</a></li>
-  <li><a href="#pull" id="toc-pull" class="nav-link" data-scroll-target="#pull">Pull</a></li>
+  <li><a href="#pull-fetch-origin" id="toc-pull-fetch-origin" class="nav-link" data-scroll-target="#pull-fetch-origin">Pull (Fetch origin)</a></li>
   <li><a href="#history" id="toc-history" class="nav-link" data-scroll-target="#history">History</a></li>
   <li><a href="#ignore" id="toc-ignore" class="nav-link" data-scroll-target="#ignore">Ignore</a></li>
-  <li><a href="#revert" id="toc-revert" class="nav-link" data-scroll-target="#revert">Revert</a></li>
+  <li><a href="#discard-changes-revert" id="toc-discard-changes-revert" class="nav-link" data-scroll-target="#discard-changes-revert">Discard Changes (Revert)</a></li>
   <li><a href="#branches" id="toc-branches" class="nav-link" data-scroll-target="#branches">Branches</a>
   <ul class="collapse">
   <li><a href="#create-a-new-branch" id="toc-create-a-new-branch" class="nav-link" data-scroll-target="#create-a-new-branch">Create a new branch</a></li>
@@ -75,7 +75,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">RStudio Git Tab Cheat Sheet</h1>
+<h1 class="title">GitHub Desktop Cheat Sheet</h1>
 </div>
 
 
@@ -106,11 +106,11 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>The <strong>Git</strong> tab in RStudio (usually top-right pane) lets you do most everyday Git operations without touching the command line. This is a quick reference for the buttons and icons you’ll see there.</p>
+<p><strong>GitHub Desktop</strong> is a standalone application (separate from RStudio) that lets you do most everyday Git operations through a graphical interface instead of the command line. This is a quick reference for the buttons and panes you’ll see there.</p>
 <hr>
 </section>
-<section id="the-file-list" class="level2">
-<h2 class="anchored" data-anchor-id="the-file-list">The File List</h2>
+<section id="the-changes-list" class="level2">
+<h2 class="anchored" data-anchor-id="the-changes-list">The Changes List</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -125,23 +125,23 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>Checkbox</td>
-<td>Whether the file is <strong>staged</strong> — included in the next commit. Select all the files (e.g.&nbsp;cntrl-a) and click any check box to select all</td>
+<td>Whether the file is <strong>staged</strong> — included in the next commit. Select <strong>Select All</strong> at the top of the list (or check the box next to “Changes”) to select all files</td>
 </tr>
 <tr class="even">
-<td>Status letter</td>
-<td><code>M</code> modified, <code>A</code> added, <code>D</code> deleted, <code>??</code> untracked (new, not yet tracked by Git), <code>R</code> renamed</td>
+<td>Icon next to file name</td>
+<td>A yellow dot = modified, a green plus = added (new/untracked), a red minus = deleted</td>
 </tr>
 </tbody>
 </table>
 <blockquote class="blockquote">
-<p>All files must be <strong>staged</strong> (checkbox ticked) before they can be committed.</p>
+<p>All files must be <strong>staged</strong> (checkbox ticked) before they can be committed. By default, GitHub Desktop stages all changed files automatically when you open it.</p>
 </blockquote>
 <hr>
 </section>
 <section id="diff-review-changes" class="level2">
 <h2 class="anchored" data-anchor-id="diff-review-changes">Diff / Review Changes</h2>
 <ul>
-<li>Click a file’s name (not the checkbox) to open the <strong>diff viewer</strong></li>
+<li>Click a file’s name (not the checkbox) in the left-hand list to open the <strong>diff viewer</strong> on the right</li>
 <li>Red lines = removed, green lines = added</li>
 <li>This is your chance to review exactly what will be committed — always worth checking before committing</li>
 </ul>
@@ -151,9 +151,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="commit">Commit</h2>
 <ol type="1">
 <li>Tick the checkboxes for the files you want to include</li>
-<li>Click <strong>Commit</strong> — this opens the commit dialog</li>
-<li>Write a short, informative <strong>commit message</strong> (e.g., <code>Fix data cleaning bug</code>)</li>
-<li>Click <strong>Commit</strong></li>
+<li>Type a short, informative <strong>summary</strong> in the box at the bottom-left (e.g., <code>Fix data cleaning bug</code>)</li>
+<li>Optionally add a longer <strong>description</strong> below the summary box</li>
+<li>Click <strong>Commit to &lt;branch-name&gt;</strong></li>
 </ol>
 <p>A commit is a saved snapshot of your staged changes, stored locally. It is <strong>not</strong> sent to GitHub until you <strong>push</strong>.</p>
 <hr>
@@ -161,16 +161,18 @@ ul.task-list li input[type="checkbox"] {
 <section id="push" class="level2">
 <h2 class="anchored" data-anchor-id="push">Push</h2>
 <ul>
-<li>Click the green <strong>up arrow</strong> (Push) to send your local commits to GitHub</li>
-<li>You should see the commits you pushed on the GitHub website as soon as you refresh the page.</li>
-<li>Do this regularly, so all versions are up to date.</li>
+<li>Click <strong>Push origin</strong> in the top toolbar to send your local commits to GitHub</li>
+<li>The button shows a number (e.g., “Push origin 1”) indicating how many commits are waiting to be pushed</li>
+<li>You should see the commits you pushed on the GitHub website as soon as you refresh the page</li>
+<li>Do this regularly, so all versions are up to date</li>
 </ul>
 <hr>
 </section>
-<section id="pull" class="level2">
-<h2 class="anchored" data-anchor-id="pull">Pull</h2>
+<section id="pull-fetch-origin" class="level2">
+<h2 class="anchored" data-anchor-id="pull-fetch-origin">Pull (Fetch origin)</h2>
 <ul>
-<li>Click the blue <strong>down arrow</strong> (Pull) to fetch and merge changes from GitHub into your local branch</li>
+<li>Click <strong>Fetch origin</strong> in the top toolbar to check for new commits on GitHub</li>
+<li>If there are new commits, the button changes to <strong>Pull origin</strong> — click it to merge them into your local branch</li>
 <li>Do this regularly, and especially before starting new work, to avoid falling behind or creating conflicts</li>
 </ul>
 <hr>
@@ -178,8 +180,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="history" class="level2">
 <h2 class="anchored" data-anchor-id="history">History</h2>
 <ul>
-<li>Click the <strong>clock icon</strong> to open the commit history</li>
-<li>Shows every commit on the current branch: message, author, date, and hash</li>
+<li>Click the <strong>History</strong> tab (next to the <strong>Changes</strong> tab, top-left)</li>
+<li>Shows every commit on the current branch: summary, author, date, and hash</li>
 <li>Click any commit to see the diff introduced by that commit</li>
 <li>Useful for figuring out <em>when</em> a change was made or <em>what</em> changed</li>
 </ul>
@@ -188,53 +190,53 @@ ul.task-list li input[type="checkbox"] {
 <section id="ignore" class="level2">
 <h2 class="anchored" data-anchor-id="ignore">Ignore</h2>
 <ul>
-<li>Select a file → click <strong>More</strong> (gear icon) → <strong>Ignore…</strong></li>
-<li>Opens <code>.gitignore</code>, where you can add file/folder patterns Git should never track or upload to GitHub (e.g., <code>*.Rproj.user</code>, <code>.Rhistory</code>, large data files, private data or notes)</li>
-<li>Ignored files disappear from the Git tab’s file list and are not pushed to GitHub but remain on your hard drive</li>
+<li>Right-click a file in the <strong>Changes</strong> list → <strong>Ignore file</strong> (or <strong>Ignore file extension…</strong>)</li>
+<li>Adds the file/pattern to <code>.gitignore</code>, so Git never tracks or uploads it to GitHub (e.g., <code>*.Rproj.user</code>, <code>.Rhistory</code>, large data files, private data or notes)</li>
+<li>Ignored files disappear from the Changes list and are not pushed to GitHub but remain on your hard drive</li>
 </ul>
 <hr>
 </section>
-<section id="revert" class="level2">
-<h2 class="anchored" data-anchor-id="revert">Revert</h2>
+<section id="discard-changes-revert" class="level2">
+<h2 class="anchored" data-anchor-id="discard-changes-revert">Discard Changes (Revert)</h2>
 <ul>
-<li>Select a file → <strong>More</strong> (gear icon) → <strong>Revert…</strong></li>
+<li>Right-click a file in the <strong>Changes</strong> list → <strong>Discard changes…</strong></li>
 <li>Discards <strong>uncommitted</strong> changes to that file, restoring it to the last committed version</li>
-<li>⚠️ This is destructive — uncommitted edits are lost permanently</li>
+<li>⚠️ This is destructive — uncommitted edits are lost permanently (GitHub Desktop moves them to the Recycle Bin/Trash as a small safety net)</li>
 </ul>
 <blockquote class="blockquote">
-<p>To undo something already <strong>committed and pushed</strong>, don’t use Revert. Look up how to revert to a previous commit.</p>
+<p>To undo something already <strong>committed and pushed</strong>, don’t use Discard Changes. Look up how to revert to a previous commit.</p>
 </blockquote>
 <hr>
 </section>
 <section id="branches" class="level2">
 <h2 class="anchored" data-anchor-id="branches">Branches</h2>
-<p>The current branch name is shown in a dropdown on the right side of the Git tab toolbar.</p>
+<p>The current branch name is shown in the <strong>Current branch</strong> dropdown in the top toolbar.</p>
 <section id="create-a-new-branch" class="level3">
 <h3 class="anchored" data-anchor-id="create-a-new-branch">Create a new branch</h3>
 <ol type="1">
-<li>Click the branch dropdown → <strong>New Branch…</strong></li>
+<li>Click <strong>Current branch</strong> → <strong>New branch</strong></li>
 <li>Name it (e.g., <code>add-analysis</code>)</li>
-<li>Leave <strong>Sync branch with remote</strong> checked to also create it on GitHub</li>
-<li>Click <strong>Create</strong></li>
+<li>Click <strong>Create branch</strong></li>
+<li>Click <strong>Publish branch</strong> to also create it on GitHub</li>
 </ol>
 <p>You are automatically switched onto the new branch.</p>
 </section>
 <section id="switch-between-branches" class="level3">
 <h3 class="anchored" data-anchor-id="switch-between-branches">Switch between branches</h3>
 <ol type="1">
-<li>Click the branch dropdown</li>
+<li>Click <strong>Current branch</strong></li>
 <li>Select the branch you want from the list</li>
-<li>RStudio switches your working files to match that branch</li>
+<li>GitHub Desktop switches your working files to match that branch</li>
 </ol>
 <blockquote class="blockquote">
-<p>Commit or stash changes before switching branches — RStudio will warn you if switching would overwrite uncommitted work.</p>
+<p>Commit or stash changes before switching branches — GitHub Desktop will warn you if switching would overwrite uncommitted work.</p>
 </blockquote>
 </section>
 <section id="merge-a-branch" class="level3">
 <h3 class="anchored" data-anchor-id="merge-a-branch">Merge a branch</h3>
 <ul>
-<li>The Git tab does <strong>not</strong> have a direct “merge” button</li>
-<li>Push your branch, then open a <strong>pull request on GitHub.com</strong> and merge it there (see <code>Exercise_GitHub_Branching.Rmd</code>)</li>
+<li>The <strong>Branch</strong> menu → <strong>Merge into current branch…</strong> lets you merge one local branch into another</li>
+<li>More commonly, push your branch, then open a <strong>pull request on GitHub.com</strong> and merge it there (see <code>Exercise_GitHub_Branching.Rmd</code>)</li>
 </ul>
 <hr>
 </section>
@@ -245,7 +247,7 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th>Action</th>
-<th>Where in Git tab</th>
+<th>Where in GitHub Desktop</th>
 </tr>
 </thead>
 <tbody>
@@ -259,39 +261,39 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td>Save a snapshot</td>
-<td><strong>Commit</strong> button</td>
+<td>Summary box → <strong>Commit to &lt;branch&gt;</strong></td>
 </tr>
 <tr class="even">
 <td>Send commits to GitHub</td>
-<td><strong>Push</strong> (green up arrow)</td>
+<td><strong>Push origin</strong></td>
 </tr>
 <tr class="odd">
 <td>Get others’ commits</td>
-<td><strong>Pull</strong> (blue down arrow)</td>
+<td><strong>Fetch origin</strong> → <strong>Pull origin</strong></td>
 </tr>
 <tr class="even">
 <td>View past commits</td>
-<td><strong>History</strong> (clock icon)</td>
+<td><strong>History</strong> tab</td>
 </tr>
 <tr class="odd">
 <td>Stop tracking a file</td>
-<td><strong>More</strong> → <strong>Ignore…</strong></td>
+<td>Right-click → <strong>Ignore file</strong></td>
 </tr>
 <tr class="even">
 <td>Discard uncommitted changes</td>
-<td><strong>More</strong> → <strong>Revert…</strong></td>
+<td>Right-click → <strong>Discard changes…</strong></td>
 </tr>
 <tr class="odd">
 <td>Create a branch</td>
-<td>Branch dropdown → <strong>New Branch…</strong></td>
+<td><strong>Current branch</strong> → <strong>New branch</strong></td>
 </tr>
 <tr class="even">
 <td>Switch branches</td>
-<td>Branch dropdown → select branch</td>
+<td><strong>Current branch</strong> → select branch</td>
 </tr>
 <tr class="odd">
 <td>Merge a branch</td>
-<td>Not in Git tab — use a pull request on GitHub.com</td>
+<td><strong>Branch</strong> menu, or a pull request on GitHub.com</td>
 </tr>
 </tbody>
 </table>
@@ -299,7 +301,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>The Git tab covers the everyday workflow — stage, commit, push, pull — plus branch creation and switching. For anything it doesn’t do directly (merging, resolving conflicts, undoing pushed commits), GitHub.com’s web interface, the Git Terminal or GitHub desktop are the next steps.</p>
+<p>GitHub Desktop covers the everyday workflow — stage, commit, push, pull — plus branch creation and switching, all outside of RStudio. For anything it doesn’t do directly (resolving complex conflicts, undoing pushed commits), GitHub.com’s web interface or the Git command line are the next steps.</p>
 </section>
 
 </main>
