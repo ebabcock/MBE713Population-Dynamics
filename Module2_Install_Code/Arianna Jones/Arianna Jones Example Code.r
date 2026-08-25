@@ -3,8 +3,8 @@ bruv<-read.csv("bruv.csv")
 theme_set(theme_minimal())
 ggplot(bruv,aes(x=Zone,fill=Sharks))+
   geom_bar()+
-  scale_fill_manual(values=c("blue","pink"))+
+  scale_fill_manual(values=c("black","red"))+
   labs(x="",y="Number of BRUV samples",fill="Sharks present?")+
   theme(legend.position="top")
-# Beth's new code
-#CHanged in desktop
+# I edited this on the website
+#This is Arianna's comment for the assignment due 8/25

@@ -14,7 +14,7 @@ library(tidyverse)
 theme_set(theme_bw()) #optionally change the plotting theme
 ```
 
-### What determines whether a population will grow or decline from one year to the next?
+### Discrete time models
 
 *Population next year = population this year + births - deaths + net migration*
 
