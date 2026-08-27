@@ -1,0 +1,12 @@
+name: likelihood_regression
+title: Likelihood_regression
+username: ebabcock
+account: ebabcock
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a043f6-ce22-d676-bf70-f0804280bf7d
+bundleId:
+url: https://connect.posit.cloud/ebabcock/content/01a043f6-ce22-d676-bf70-f0804280bf7d
+version: 1
+asMultiple: FALSE
+asStatic: TRUE

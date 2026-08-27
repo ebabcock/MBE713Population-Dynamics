@@ -1,0 +1,12 @@
+name: likelihood_intro
+title: Likelihood_Intro
+username: ebabcock
+account: ebabcock
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a043f3-4975-678e-3b61-a2a1c88574dc
+bundleId:
+url: https://connect.posit.cloud/ebabcock/content/01a043f3-4975-678e-3b61-a2a1c88574dc
+version: 1
+asMultiple: FALSE
+asStatic: TRUE
