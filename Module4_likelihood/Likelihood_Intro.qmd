@@ -44,7 +44,8 @@ Since there's only one parameter, we can evaluate the likelihood across a grid o
 
 ```{r}
 p_grid <- tibble(p = seq(0.01, 0.99, by = 0.01)) |>
-  mutate(likelihood = dbinom(x = heads, size = n, prob = p))
+  mutate(likelihood = dbinom(x = heads, size = n, prob = p),
+         likelihood2 =dbinom(x = heads*10, size = n*10, prob = p))
 
 p_grid |>
   arrange(desc(likelihood)) |>
@@ -59,8 +60,10 @@ Plotting likelihood against the parameter value is called a **likelihood profile
 
 ```{r}
 ggplot(p_grid, aes(x = p, y = likelihood)) +
-  geom_line() +
+  geom_line(aes(color="heads=13, n=20")) +
+  geom_line(aes(y=likelihood2,color="heads=130, n=200"))+
   geom_vline(xintercept = heads / n, linetype = "dashed", color = "red") +
+  scale_color_manual(name="sample size",values=c("purple","darkgreen"))
   labs(x = "p (probability of heads)",
        y = "Likelihood",
        title = "Likelihood profile for p")
