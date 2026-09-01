@@ -129,3 +129,9 @@ fit<-optim(par=c(a=0,b=1),
            x=mpg$hwy,
            y=mpg$cty)
 fit
+
+##
+
+
+
+

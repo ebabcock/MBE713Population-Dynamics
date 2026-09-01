@@ -35,7 +35,7 @@ It we have an average of 10.5 seeds, the answer is Nt=(1)\*(10.5)\^6 = 1340096.
 
 The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
 
-Nt/N0 = 2 2 = e\^0.0143t
+Nt/N0 =  2 = e\^0.0143t
 
 ln(2) = 0.0143t log(2)/0.0143 = 48.47183 = 48.5
 
