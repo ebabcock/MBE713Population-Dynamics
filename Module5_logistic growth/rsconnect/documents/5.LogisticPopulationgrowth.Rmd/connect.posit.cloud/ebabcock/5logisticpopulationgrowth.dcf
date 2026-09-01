@@ -1,0 +1,12 @@
+name: 5logisticpopulationgrowth
+title: 5.LogisticPopulationgrowth
+username: ebabcock
+account: ebabcock
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a05cd2-f47c-4854-77fd-63659fe04c6e
+bundleId:
+url: https://connect.posit.cloud/ebabcock/content/01a05cd2-f47c-4854-77fd-63659fe04c6e
+version: 1
+asMultiple: FALSE
+asStatic: TRUE

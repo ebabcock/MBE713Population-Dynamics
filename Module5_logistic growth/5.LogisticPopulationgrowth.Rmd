@@ -7,23 +7,22 @@ output: html_document
 
 Open ggplot
 
-```{r}
-library(ggplot2)
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
 theme_set(theme_bw(base_size = 14))
 ```
 
-
 ### How to model density dependence and carrying capacity?
 
-Define $K$, carrying capacity as the number of animals a habitat can support.  
+Define $K$, carrying capacity as the number of animals a habitat can support.
 
-Define $r_m$ as the intrinsic population growth rate. The actual growth rate $r$ may be lower due to density dependent processes.  
+Define $r_m$ as the intrinsic population growth rate. The realized growth rate $r$ may be lower due to density dependent processes.
 
-### Oversimplified idea 1.  
+### Oversimplified idea 1.
 
-Assume that the growth rate does not change with density, but all animals after animal K die. 
+Assume that the growth rate does not change with density, but all animals after animal K die.
 
-```{r}
+```{r,warning=FALSE}
 rm<-0.25
 K<-1000
 N0<-100
@@ -36,7 +35,7 @@ ggplot(Population,
   ggtitle("Population size")
 ```
 
-```{r}
+```{r,warning=FALSE}
 Population$r<-c(NA,log(Population$N[2:nrow(Population)]/Population$N[1:(nrow(Population)-1)]))
 ggplot(Population,
        aes(x=t,y=r))+
@@ -45,7 +44,7 @@ ggplot(Population,
                 
 ```
 
-### Oversimplified idea 2.  
+### Oversimplified idea 2.
 
 Realized $r$ decreases linearly with abundance
 
@@ -59,14 +58,11 @@ ggplot(data.frame(N=0:1000,
 
 $$r=r_m(1-N/K)$$
 
-so that 
+so that
 
-$$\delta N/\delta t=r_m(1-N/K)N$$
-In continuous time, this integrates to: 
+$$\delta N/\delta t=r_m(1-N/K)N$$ In continuous time, this integrates to:
 
-$$N_t=\frac{K}{1+\frac{(K-N_0)}{N_0} e^{-r_m t}}$$
-We can make a function for ease of calculation
-
+$$N_t=\frac{K}{1+\frac{(K-N_0)}{N_0} e^{-r_m t}}$$ We can make a function for ease of calculation
 
 ```{r}
 logisticN<-function(rm,K,N0,tt) {
@@ -78,7 +74,7 @@ N0=1000
 logisticN(rm,K,N0,tt)
 ```
 
-Now use the function to make a data frame including numbers per year. 
+Now use the function to make a data frame including numbers per year.
 
 ```{r}
 rm<-0.15
@@ -93,8 +89,7 @@ ggplot(Population,
   ggtitle("Logistic population increase")
 ```
 
-This is logistic population growth, and is a commonly used model for population dynamics for many kinds of species. 
-
+This is logistic population growth, and is a commonly used model for population dynamics for many kinds of species.
 
 If the population starts out above K, it will decline to K
 
@@ -116,7 +111,7 @@ If it starts at K, then it will stay there.
 
 ### Yield curve and MSY
 
-Make a plot of the increase as a function of abundance. 
+Make a plot of the increase as a function of abundance.
 
 ```{r}
 production<-data.frame(N=seq(0,K,length=50))
@@ -126,13 +121,11 @@ ggplot(production,aes(x=N,y=production))+
   ggtitle("Surplus Production ")
 ```
 
-
 ### Discrete time version
 
 For an annual time step, this simplifies to
 
-$$N_{t+1}=N_t+r (1/N_t/K) N_t $$
-As a function:
+$$N_{t+1}=N_t+r (1/N_t/K) N_t $$ As a function:
 
 ```{r}
 logisticNdiscrete<-function(rm,K,Nt) {
@@ -142,7 +135,7 @@ logisticNdiscrete(rm=0.25,K=1000,Nt=45)
 
 ```
 
-To calculate the numbers in each year, start at $N_0$, and use the discrete time logistic to calculate the numbers in each following year. 
+To calculate the numbers in each year, start at $N_0$, and use the discrete time logistic to calculate the numbers in each following year.
 
 ```{r}
 rm<-0.15
@@ -165,10 +158,9 @@ What happens if there is a catastrophic mortality event, like a hurricane?
 
 The discrete time version makes it easy to model. We can write the equation as
 
-$$N_{t+1}=N_t+r (1/N_t/K) N_t - C_t$$
-Where $C_t$ is the number of animals killed in the catastrophe.  You can see from the equation that the number of animals in time $t+1$ will be less than the number of animals that are produced by the population $r (1/N_t/K) N_t$ That number is called the surplus production, and it is the amount of new population that can be generate from births minus deaths given the current population. 
+$$N_{t+1}=N_t+r (1/N_t/K) N_t - C_t$$ Where $C_t$ is the number of animals killed in the catastrophe. You can see from the equation that the number of animals in time $t+1$ will be less than the number of animals that are produced by the population $r (1/N_t/K) N_t$ That number is called the surplus production, and it is the amount of new population that can be generate from births minus deaths given the current population.
 
-You may have seen this model before in fisheries, where it is called the Schaefer Surplus Production model, and the $C_t$ stands for the catch in each year. In fisheries, the equation is often calculated in biomass rather than numbers. 
+You may have seen this model before in fisheries, where it is called the Schaefer Surplus Production model, and the $C_t$ stands for the catch in each year. In fisheries, the equation is often calculated in biomass rather than numbers.
 
 For now, let's try an example of a simple mortality event in one year, such as fire or storm. The catastrophe caused 100 extra animals to die in the 10th year, beyond the natural mortality rate. We will put the number killed in a column called C in the Population data
 
@@ -210,68 +202,12 @@ ggplot(Population,
 
 ### Fitting a model with maximum likelihood
 
-This is some code to fit a very simple model with maximum likelihood so you can see how it works. Then we will fit a surplus production model with likelihood
 
-```{r}
-data<-data.frame(i=1:30,x=c(7.72, 4.79, 5.78, 4.89, 2.25, 4.17, 4.21, 4.88, 7.2, 6.53, 4.67, 4.49, 6.39, 6.11, 3.62, 3.59, 5.73, 6.54, 4.78, 6.76, 5.8, 
-3.78, 5.68, 2.74, 7.87, 8.96, 4.27, 2.91, 6.14, 4.73))  
-g1<-ggplot(data,aes(x=i,y=x))+
-  geom_point()+
-  geom_hline(yintercept=mean(data$x))
-g2<-ggplot(data,aes(x=x))+
-  geom_histogram()+
-  geom_vline(xintercept=mean(data$x))
-gridExtra::grid.arrange(g1,g2,ncol=2)
-```
-For simplicity, let's fix the standard deviation and just estimate the mean,
-using a normal likelihood. First plot the likelihood profile
+### MLE fit of the swordfish surplus production model
 
-```{r}
-likelihood<-data.frame(mu=seq(0,10,0.01))
-for(i in 1:nrow(likelihood)) {
- likelihood$LL[i]=sum(dnorm(data$x,mean=likelihood$mu[i],sd=2,log=TRUE))
-}
-ggplot(likelihood,aes(x=mu,y=LL))+
-  geom_line()+
-  ggtitle("Likelihood profile of the mean")
-mean(data$x)
-likelihood[likelihood$LL==max(likelihood$LL),]
-```
+Swordfish data
 
-Now make a function to minimize to get the MLE (maximum likelihood estimate)
-
-```{r}
-library(tidyverse)
-view(data)
-theta<-c(mu=4,sd=2)
-theta["mu"]
-getNegLogLike<-function(theta,data) {
-    LL<-dnorm(x=data$x, #data is an input, with a variable called x
-              mean=theta["mu"], #mean is the parameter we want to calculate
-              sd=2,
-              log=TRUE) #fix standard deviation for this example
-    -sum(LL)  #return negative total log likelihood
-}
-getNegLogLike(c(mu=5.2),data)
-```
-
-Use minimizer function optim to find the value of mu that has the lowest -LL, which is the highest LL
-
-```{r}
-modFit<-optim(par=c(mu=3),
-              fn=getNegLogLike,
-              data=data,
-              method="L-BFGS-B")
-modFit$par
-modFit$message
-
-```
-
-### With swordfish surplus production model
-
-Swordfish data 
-
-```{r}
+```{r,warning=FALSE}
 swordfish<-read.csv("Swordfish.csv")
 swo1<-ggplot(swordfish,aes(x=Year,y=CPUE))+
       geom_point(color="darkred")+theme_bw(base_size=12)
@@ -321,7 +257,7 @@ exp(modFit$par["logK"])
 
 Plot the fit
 
-```{r}
+```{r,warning=FALSE}
 swordfish$Biomass[1]<-exp(modFit$par["logK"])
 for(y in 2:nrow(swordfish)) {
   swordfish$Biomass[y]<-logisticNdiscreteWithC(rm=modFit$par["r"],
@@ -335,8 +271,6 @@ ggplot(swordfish,aes(x=Year,y=CPUE))+
   geom_line(aes(y=Predicted.CPUE))
 ```
 
-Run the shiny app and answer all the questions. 
+Run the shiny app and answer all the questions.
 
-https://elizabeth-babcock.shinyapps.io/ProductionModelDemo2/
-
-
+https://elizabeth-babcock.shinyapps.io/ProductionModelDemo3/
