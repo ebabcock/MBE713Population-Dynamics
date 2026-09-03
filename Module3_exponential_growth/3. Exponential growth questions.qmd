@@ -13,7 +13,11 @@ Recalling that for continuous time (t can be any real positive number)
 
 $N_t=N_0e^{r_m t}$
 
+<<<<<<< HEAD
 \$log(Nt) = log(N0) + rm \* t
+=======
+$log(N_t)=log(N_0)+r_m*t$
+>>>>>>> a534efc8ac3e4740aad8cbf96f1835eb418c439a
 
 and for a annual time step (t is integer years or days)
 
@@ -27,6 +31,7 @@ $\lambda=e^{r_m}$
 
 Each individual of an annual plant species produces on average ten seeds. (a) Starting with a single individual, what will be the population size after 6 years, assuming all the seeds survive to produce adult plants the following generation? (b) A new variety of the plant produces 5 per cent more seeds, i.e. 10.5 seeds on average. What will be the potential number of offspring after 6 years from a single individual?
 
+<<<<<<< HEAD
 Annual plant, so
 
 Nt=N0 lamda t
@@ -46,10 +51,21 @@ N\[t+1\]= (1\*10)\^6 = 10\^6
 N\[t+1\]= (1\*10.5)\^6
 
 10.5\^6
+=======
+Answer: N0 is 1.0, because the problem says that we have one plant at the beginning. lambda is 10. It is the number we multiply by to get next year's population from this years. For each plant one year, we will have 10 plants next year (10 seeds, minus one death of the original plant, is 10) So in six years, we get 10\^6 plants.
+
+It we have an average of 10.5 seeds, the answer is Nt=(1)\*(10.5)\^6 = 1340096.
+>>>>>>> a534efc8ac3e4740aad8cbf96f1835eb418c439a
 
 ### Neal: Introduction to Population Biology question 4.2.
 
-\(a\) The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
+The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
+
+Nt/N0 =  2 = e\^0.0143t
+
+ln(2) = 0.0143t log(2)/0.0143 = 48.47183 = 48.5
+
+The Norway rat population will take approximately 48.5 days to double in size.
 
 When population doubles, Nt/N0 = 2 = e\^rmt
 
@@ -65,6 +81,7 @@ t = log(2) /0.0143
 
 A population increases fivefold over a 4-week period. What is the value of $\lambda$ per day, assuming exponential growth?
 
+<<<<<<< HEAD
 4\*7 = 28 days = t
 
 Nt/N0 = lambda\^t = 5
@@ -84,3 +101,12 @@ log(5) = rmt
 rm = log (5) / 28
 
 lambd
+=======
+4\*7 = 28 days
+
+5 = lambda\^28
+
+5\^(1/28)
+
+lambda = 1.059164
+>>>>>>> a534efc8ac3e4740aad8cbf96f1835eb418c439a
