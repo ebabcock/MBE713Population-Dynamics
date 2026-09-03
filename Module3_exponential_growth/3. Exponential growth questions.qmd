@@ -13,6 +13,8 @@ Recalling that for continuous time (t can be any real positive number)
 
 $N_t=N_0e^{r_m t}$
 
+\$log(Nt) = log(N0) + rm \* t
+
 and for a annual time step (t is integer years or days)
 
 $N_t=N_0\lambda^t$
@@ -25,10 +27,60 @@ $\lambda=e^{r_m}$
 
 Each individual of an annual plant species produces on average ten seeds. (a) Starting with a single individual, what will be the population size after 6 years, assuming all the seeds survive to produce adult plants the following generation? (b) A new variety of the plant produces 5 per cent more seeds, i.e. 10.5 seeds on average. What will be the potential number of offspring after 6 years from a single individual?
 
+Annual plant, so
+
+Nt=N0 lamda t
+
+t=6 years
+
+N0= starting population = 1 seed
+
+N\[t+1\]=N\[0\] \* lamda
+
+lamda = rate of change between the population of the first year and the population of the following years
+
+In this example, lamda = 10
+
+N\[t+1\]= (1\*10)\^6 = 10\^6
+
+N\[t+1\]= (1\*10.5)\^6
+
+10.5\^6
+
 ### Neal: Introduction to Population Biology question 4.2.
 
 \(a\) The Norway rat breeds continuously and has an estimated rate of natural increase (rm) of 0.0143 per day. A small number invade a garbage dump where living conditions are ideal. How long will it take the population to double in size?
 
+When population doubles, Nt/N0 = 2 = e\^rmt
+
+log(2) = rmt
+
+t= log (2) / rm
+
+t = log(2) /0.0143
+
+2 = (1 \* 0.0143)\^t
+
 ### Neal: Introduction to Population Biology question 4.5.
 
 A population increases fivefold over a 4-week period. What is the value of $\lambda$ per day, assuming exponential growth?
+
+4\*7 = 28 days = t
+
+Nt/N0 = lambda\^t = 5
+
+5 = lambda\^28
+
+5\^(1/28) = lambda
+
+lambda = 1.059164
+
+t=28
+
+lambda = e\^rm
+
+log(5) = rmt
+
+rm = log (5) / 28
+
+lambd
