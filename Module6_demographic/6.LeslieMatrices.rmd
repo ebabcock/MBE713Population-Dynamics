@@ -221,6 +221,7 @@ round(Re(eigen(Leslie)$vectors[,1]/
            sum(eigen(Leslie)$vectors[,1])),3)
 
 ```
+
 ### Elasticity analysis
 
 ```{r}
@@ -246,6 +247,7 @@ elasticityFunc<-function(A) {
 elasticityFunc(Leslie)
 
 ```
+
 Calculate some summaries
 
 Elasticity of reproductive output
