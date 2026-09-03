@@ -1,0 +1,346 @@
+---
+title: "6. Leslie matrices"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+### Life table calculations
+
+```{r,message=FALSE,warning=FALSE}
+cohort<-read_csv("cohortLifeTable.csv")
+ggplot(cohort,aes(x=x))+
+  geom_line(aes(y=S_F,color="F"))+
+  geom_line(aes(y=S_M,color="M"))+
+  labs(x="Age",y="Survivors to beginning of age group")
+ggplot(cohort,aes(x=x))+
+  geom_line(aes(y=log(S_F),color="F"))+
+  geom_line(aes(y=log(S_M),color="M"))+
+  labs(x="Age",y="log(Survivors to beginning of age group")
+```
+
+Calculate number of deaths
+
+```{r}
+cohort$D_M<-cohort$S_M-c(cohort$S_M[2:10],0)
+cohort$D_F<-cohort$S_F-c(cohort$S_F[2:10],0)
+cohort
+```
+
+Calculate mortality rate
+
+```{r,warning=FALSE}
+cohort<-cohort |> mutate(
+  q_M=D_M/S_M,
+  q_F=D_F/S_F)
+cohort
+ggplot(cohort,aes(x=x)) +
+  geom_line(aes(y=q_M,color="M"))+
+  geom_line(aes(y=q_F,color="F"))+
+  labs(x="Age",y="Mortality rate")
+```
+
+Vertical life table 
+
+
+```{r}
+vertical<-read_csv("vertical.csv")
+vertical<-vertical |>
+  mutate(Years_in_ageclass=x1-x0,
+         annual_mortality_rate=Deaths_per_year_in_sample/Sample,
+         Numbers_per_1000=NA)
+
+vertical$Numbers_per_1000[1]<-1000
+for(i in 2:nrow(vertical)) {
+  vertical$Numbers_per_1000[i]<-
+    vertical$Numbers_per_1000[i-1]*
+    (1-vertical$annual_mortality_rate[i-1])^
+     vertical$Years_in_ageclass[i-1]
+}
+#view(vertical)
+ggplot(vertical,aes(x=x0,y=Numbers_per_1000))+
+         geom_line()
+write_csv(vertical,"verticalSolved.csv")
+```
+
+### Demographic models
+
+Read in the squirrel data, lawn pre-intervention only
+
+```{r}
+squirrel<-read_csv("squirrel.csv")
+squirrel<-squirrel |> mutate(lxmx=lx*mx)
+squirrel
+```
+
+Calculate lifetime reproductive rate
+
+```{r}
+R0<-with(squirrel,sum(lxmx))
+R0
+```
+
+Mean generation time
+
+```{r}
+Tc<-with(squirrel,sum(x*lxmx)/sum(lxmx))
+Tc
+```
+Euler-Lotka equation
+
+Births at time t are equal to the sum over age groups (x) number of females born x years ago, times their survival to age x (lx) times their fecundity at age x (mx).
+
+$$
+B_t= \sum_{x=0}^{x_{max}} B_{t-x} l_x m_x
+$$
+
+And population is growing (or declining) at rate $\lambda=e^{r_m}$. So births are 
+
+$$
+B_t=B_0\lambda^t
+$$
+Substituting
+
+
+$$
+B_0\lambda^t = \sum_{x=0}^{x_{max}} B_0\lambda^{t-x}l_x m_x
+$$
+
+$B_0 \lambda^t$ cancels out, leaving 
+
+$$
+1 = \sum_{x=0}^{x_{max}} \lambda^{-x} l_x m_x  
+$$
+
+Or equivalently
+
+$$
+1 = \sum_{x=0}^{x_{max}} e^{-r_m x} l_x m_x  
+$$
+Solve numerically for $r_m$
+
+```{r}
+EulerEquation<-function(rm,data) {
+  (sum(exp(-rm*data$x)*data$lx*data$mx)-1)^2
+}
+rvals<-data.frame(r=seq(-0.1,0.2,by=0.01))
+for(i in 1:length(rvals$r)) {
+ rvals$Euler[i]<-EulerEquation(rvals$r[i],data=list(x=squirrel$x,
+                        lx=squirrel$lx,
+                        mx=squirrel$mx))
+}
+ggplot(rvals,aes(x=r,y=Euler))+geom_line()
+```
+
+Find value of rm for squirrel data
+
+```{r}
+solvedEuler<-optim(par=0.1,
+              fn=EulerEquation,
+              data=list(x=squirrel$x,
+                        lx=squirrel$lx,
+                        mx=squirrel$mx),
+              method="L-BFGS-B")
+
+solvedEuler
+rm<-solvedEuler$par
+rm
+```
+
+
+$r_m$ can also be approximated by just assuming each female produces $R_0$ offspring at age %T_c% so that 
+
+$$r_c=log(R_0)/T_c$$
+which is, for the squirrels
+
+```{r}
+rc=log(R0)/Tc
+rc
+```
+This would be exactly correct for an annual species, and it is approximate for species that reproduce multiple times. 
+
+Matrix version
+
+```{r}
+Pvals<-squirrel$lx[2:6]/squirrel$lx[1:5]
+Fvals<-squirrel$mx[2:6]*Pvals
+Leslie<-matrix(0,5,5)
+Leslie[1,]<-Fvals
+for(i in 1:4) Leslie[i+1,i]<-Pvals[i]
+round(Leslie,3)
+```
+
+Calculate $r_m$ with matrix multiplication  %*%
+
+```{r}
+nyear<-100
+N<-matrix(NA,5,nyear)
+N[,1]<-rep(1,5)
+for(i in 2:nyear) {
+  N[,i]<-Leslie %*% N[,i-1]
+}
+N[1:5,1:5]
+sumTab<-data.frame(t=1:nyear,N=colSums(N))
+view(sumTab)
+sumTab$lambda<-NA
+sumTab$lambda[2:nyear]<-sumTab$N[2:nyear]/sumTab$N[1:(nyear-1)]
+
+ggplot(sumTab,
+       aes(x=t,y=N,group=1))+
+  geom_line()
+
+ggplot(sumTab,
+       aes(x=t,y=lambda,group=1))+
+  geom_line()
+
+lambda<-sumTab$lambda[nyear]
+lambda
+rm<-log(lambda)
+rm
+```
+
+The stable age structure can be calculated by dividing the numbers by the total in the last year.
+
+```{r}
+round(N[,nyear]/sumTab$N[nyear],3)
+```
+
+Eigenvalue method
+
+```{r}
+eigen(Leslie)
+lambda2<-Re(eigen(Leslie)$values[1])  #Re for just real number
+lambda2
+#Stable age structure is first eigenvector divided by its sum
+round(Re(eigen(Leslie)$vectors[,1]/
+           sum(eigen(Leslie)$vectors[,1])),3)
+
+```
+### Elasticity analysis
+
+```{r}
+#Function to calculated left eigenvalue #https://stackoverflow.com/questions/14912279/how-to-obtain-right-eigenvectors-of-matrix-in-r
+left_eigen<-function(A) {
+  Re(eigen(t(Leslie))$vectors)
+}
+w<-Re(eigen(Leslie)$vectors)[,1]
+v<-left_eigen(Leslie)[,1]
+w/sum(w)
+v/v[1]
+
+elasticityFunc<-function(A) {
+ w<-Re(eigen(A)$vectors)[,1]
+ v<-left_eigen(A)[,1]
+ w<-w/sum(w)
+ v<-v/v[1]
+ lambda<-Re(eigen(A)$values)[1]
+ sensitivity<-outer(v,w)/sum(v*w)
+ elasticity<-(A/lambda)*sensitivity
+ elasticity
+}
+elasticityFunc(Leslie)
+
+```
+Calculate some summaries
+
+Elasticity of reproductive output
+
+```{r}
+elasVals<-elasticityFunc(Leslie)
+
+```
+
+
+Show elasticity for reproduction compared to survival
+
+```{r}
+reproElasticity<-elasVals[1,]
+survivalElasticity<-c(elasVals[2,1],elasVals[3,2],
+                      elasVals[4,3],elasVals[5,4])
+reproElasticity
+survivalElasticity
+elastSum<-data.frame(Age=rep(1:5,2),
+                     Parameter=rep(c("Reproduction","Survival"),each=5),
+                     Elasticity=c(reproElasticity,survivalElasticity,0))
+ggplot(elastSum,aes(x=Age,y=Elasticity,fill=Parameter)) +
+  geom_col(position = position_dodge())+
+  scale_fill_manual(values=c("darkred","goldenrod"))
+ggplot(elastSum,aes(x=Parameter,weight=Elasticity,fill=Parameter)) +
+  geom_bar()+
+  scale_fill_manual(values=c("darkred","goldenrod"))
+
+```
+Reproduction is more important as a whole, particularly or younger animals. 
+
+Try changing a parameter to see how it influences lambda. 
+
+```{r}
+newLeslie<-Leslie
+newLeslie[1,1]<-Leslie[1,1]*1.1
+newLambda<-Re(eigen(newLeslie)$values[1])
+(newLambda-lambda)/lambda
+```
+
+A 10% increase in F1 is a 3.4% increase in lambda
+
+### R library popbio
+
+https://www.r-bloggers.com/2013/04/demographic-analysis-using-the-popbio-library-and-some-other-fun-stuff/
+
+Library does all this work for you.
+
+```{r}
+library(popbio)
+eigen.analysis(Leslie)
+```
+
+### Monte Carlo estimation of uncertainty
+
+
+```{r}
+getLeslie<-function(lx,mx) {
+  Pvals<-lx[2:6]/lx[1:5]
+  Fvals<-mx[2:6]*Pvals
+  Leslie<-matrix(0,5,5)
+  Leslie[1,]<-Fvals
+  for(i in 1:4) Leslie[i+1,i]<-Pvals[i]
+  Leslie
+}
+squirrel.lx.cv<-0.02
+squirrel.mx.cv<-0.05
+nsim<-100000
+lambdaSims<-NULL
+for(sim in 1:nsim) {
+  lx<-c(1,rnorm(5,squirrel$lx[2:6],squirrel.lx.cv*squirrel$lx[2:6]))
+  mx<-rnorm(6,squirrel$mx,squirrel.mx.cv*squirrel$mx)
+  A<-getLeslie(lx,mx)
+  lambdaSims[sim]<-Re(eigen(A)$values[1])
+}
+summary(lambdaSims)
+#or more efficiently
+getLambda<-function() {
+    lx<-c(1,rnorm(5,squirrel$lx[2:6],squirrel.lx.cv*squirrel$lx[2:6]))
+    mx<-rnorm(6,squirrel$mx,squirrel.mx.cv*squirrel$mx)
+    A<-getLeslie(lx,mx)
+    Re(eigen(A)$values[1])
+}
+lambdaSims<-replicate(nsim,getLambda())
+#summarize results
+summary(lambdaSims)
+mean(lambdaSims,na.rm=TRUE) 
+confidenceInterval<-quantile(lambdaSims,c(0.025,0.975))
+round(confidenceInterval,3)
+ggplot(data.frame(lambda<-lambdaSims),aes(x=lambda,y=..density..))+
+  geom_histogram(fill="darkgrey",color="black",bins=50)+
+  geom_density(color="red")
+```
+
+
+
+
+
