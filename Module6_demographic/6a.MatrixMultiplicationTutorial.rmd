@@ -11,13 +11,10 @@ library(tidyverse)
 
 ### Why do we need this?
 
-In the Leslie matrix module (`6.LeslieMatrices.rmd`) we use matrices and matrix
-multiplication to project a population forward in time, and to find the
-population growth rate and stable age structure. If you have never worked
-with matrices before, the notation and the operations can look confusing at
-first. This short tutorial (about 20-30 minutes) will teach you just enough
-matrix algebra to understand those examples. We will use simple, traditional
-examples (not population models) to build the concepts from scratch. At the
+Matrices and matrix multiplication are a useful tool for several analytic tasks that come up for biological and environmental scienctists, including: (1) multiple regression, and (2) models that  project a system forward in time with a fixed time step, including Leslie matrix models in population dynamics, and animal behavior models. For these uses, you don't need to know all the theory, but you do need to know the basic algorithm for matrix multiplication. 
+
+This short tutorial (about 20-30 minutes) will teach you just enough
+matrix algebra to understand those examples. At the
 end there are some practice questions you can use to check your understanding.
 
 ### What is a matrix?
@@ -39,8 +36,7 @@ A
 
 Notice that `byrow=TRUE` tells R to fill in the numbers row by row (1,2,3
 in the first row, 4,5,6 in the second row). If you leave that out, R fills in
-column by column instead, which will give you a different matrix, so be
-careful.
+column by column instead.
 
 A matrix with only one column (or only one row) is often called a **vector**.
 For example
@@ -62,7 +58,7 @@ number in row $i$ and column $j$ as $A_{i,j}$. So in matrix A above,
 $A_{1,1}=1$, $A_{1,3}=3$, and $A_{2,2}=5$.
 
 In R, we can pull out individual elements using square brackets, with the row
-number first and the column number second.
+number first and the column number second, and the indexing works exactly the same way (rows first, columns second).
 
 ```{r}
 A[1,1]
@@ -70,12 +66,6 @@ A[1,3]
 A[2,2]
 ```
 
-You can also pull out a whole row or column by leaving the other index blank.
-
-```{r}
-A[1,]  #First row
-A[,2]  #Second column
-```
 
 ### Adding and subtracting matrices
 
@@ -107,8 +97,7 @@ element by that number.
 ### Matrix multiplication: the key idea
 
 Matrix multiplication (multiplying two matrices together) is NOT the same as
-multiplying the matching elements together like we did with addition. This is
-the part that is confusing the first time you see it, so let's go slowly.
+multiplying the matching elements together like we did with addition. 
 
 To multiply matrix A (dimensions m x n) by matrix B (dimensions n x p), the
 number of **columns** in A must equal the number of **rows** in B. The
@@ -157,7 +146,7 @@ $$
 Let's confirm this in R. Matrix multiplication in R uses the special symbol
 `%*%`, NOT the ordinary `*`, because `*` multiplies matching elements
 (element-by-element), while `%*%` does the row-times-column matrix
-multiplication described above.
+multiplication described above. 
 
 ```{r}
 A<-matrix(c(2,0,1,1,3,2),nrow=2,byrow=TRUE)
@@ -210,16 +199,16 @@ You can see this gives a different answer than `A %*% B`.
 
 ### A practical use: repeated multiplication to project forward in time
 
-One very common use of matrix multiplication is to describe how a system
+One  common use of matrix multiplication is to describe how a system
 changes from one time step to the next, and then repeat the same
 multiplication over and over to project many time steps into the future.
 
-For example, suppose we have a very simple weather model where the weather
-tomorrow depends only on the weather today. Let a vector $N_t$ describe the
-"state" of the system (fraction of days that are Sunny or Rainy) at time $t$:
+For example, suppose we have a very simple weather model where the weather (W)
+tomorrow depends only on the weather today. Let a vector $W_t$ describe the
+"state" of the system (probability that the day is Sunny or Rainy) at time $t$:
 
 $$
-N_t=\begin{bmatrix} Sunny_t \\ Rainy_t \end{bmatrix}
+W_t=\begin{bmatrix} Sunny_t \\ Rainy_t \end{bmatrix}
 $$
 
 And suppose there is a "transition matrix" $M$ that describes the
@@ -230,62 +219,56 @@ M=\begin{bmatrix} 0.8 & 0.4 \\ 0.2 & 0.6 \end{bmatrix}
 $$
 
 Here, column 1 refers to today being Sunny, and column 2 refers to today
-being Rainy. Row 1 is the probability that tomorrow is Sunny, and row 2 is
-the probability that tomorrow is Rainy. So this matrix says: if today is
+being Rainy. Row 1 is the probability that tomorrow is Sunny (conditional on whether it is Sunny or Rainy today), and row 2 is
+the probability that tomorrow is Rainy (conditional on whether it is Sunny or Rainy today). So this matrix says: if today is
 Sunny, there is an 80% chance tomorrow is Sunny and 20% chance tomorrow is
 Rainy; if today is Rainy, there is a 40% chance tomorrow is Sunny and 60%
 chance tomorrow is Rainy.
 
-If today is Sunny for sure, $N_0=\begin{bmatrix}1\\0\end{bmatrix}$, we can
+If today is Sunny, $W_0=\begin{bmatrix}1\\0\end{bmatrix}$, we can
 find tomorrow's state by matrix multiplication:
 
 $$
-N_1 = M N_0
+W_1 = M W_0
 $$
 
 ```{r}
 M<-matrix(c(0.8,0.4,0.2,0.6),nrow=2,byrow=TRUE)
-N0<-matrix(c(1,0),nrow=2)
-N1<-M %*% N0
-N1
+W0<-matrix(c(1,0),nrow=2)
+W1<-M %*% W0
+W1
 ```
 
-To project two days ahead, we multiply again, using $N_1$ as the new
+To project two days ahead, we multiply again, using $W_1$ as the new
 starting point:
 
 $$
-N_2 = M N_1 = M (M N_0)
+W_2 = M W_1 = M (M W_0) 
 $$
 
 ```{r}
-N2<-M %*% N1
-N2
+W2<-M %*% W1
+W2
 ```
 
 We could keep doing this, one day at a time, to see how the probabilities
-change over many days. Here we do it for 20 days using a loop, storing each
-day's result in a matrix with one column per day.
+change over many days. Here we do it for 20 days using a loop, storing each day's result in a matrix with one column per day.
 
 ```{r}
 ndays<-20
-N<-matrix(NA,nrow=2,ncol=ndays)
-N[,1]<-c(1,0)  #Day 1: Sunny for sure
+W<-matrix(NA,nrow=2,ncol=ndays)
+W[,1]<-c(1,0)  #Day 1: Sunny for sure
 for(i in 2:ndays){
-  N[,i]<-M %*% N[,i-1]
+  W[,i]<-M %*% W[,i-1]
 }
-round(N,3)
+round(W,3)
 ```
 
 Notice that after a while, the probabilities stop changing much from one day
-to the next. This is called reaching a "stable" or "equilibrium" state. This
-same idea -- repeatedly multiplying a matrix by a vector describing the
-current state of a system to project forward in time, and watching the
-system settle into a stable pattern -- is exactly what is done with the
-Leslie matrix to project a population's age structure forward in time and
-find its long-term growth rate and stable age distribution.
+to the next. This is called reaching a "stable" or "equilibrium" state. We can see the probabilities arrive at equilibrium if we plot the probability of sun and probablity of rain over time.
 
 ```{r}
-weather<-data.frame(day=1:ndays,Sunny=N[1,],Rainy=N[2,])
+weather<-data.frame(day=1:ndays,Sunny=W[1,],Rainy=W[2,])
 ggplot(weather,aes(x=day))+
   geom_line(aes(y=Sunny,color="Sunny"))+
   geom_line(aes(y=Rainy,color="Rainy"))+
@@ -308,7 +291,7 @@ ggplot(weather,aes(x=day))+
    time) is a common way to project a system forward in time, and it often
    settles into a stable pattern after enough repetitions.
 
-### Practice questions
+### Questions
 
 Try these on paper first, then check your answers in R.
 
@@ -343,11 +326,6 @@ $$
 
 Then calculate $BA$. Are they the same? Check both in R.
 
-**Question 5.** Explain in your own words why, if $N_t$ is a vector
-describing the state of a system at time $t$, and $M$ is a transition
-matrix, $N_{t+2} = M(MN_t)$ describes the state of the system two time steps
-later. What is another way you could write $M(MN_t)$ using only one
-multiplication symbol between $M$ and $M$?
 
 ```{r,eval=FALSE,echo=FALSE}
 # Answers (do not show to students by default)
@@ -358,9 +336,4 @@ multiplication symbol between $M$ and $M$?
 # Q4: AB = [2*1+1*2, 2*4+1*0; 0*1+3*2, 0*4+3*0] = [4,8;6,0]
 #     BA = [1*2+4*0, 1*1+4*3; 2*2+0*0, 2*1+0*3] = [2,13;4,2]
 #     Not the same.
-# Q5: M(MN_t) applies the transition matrix once to get N_{t+1}=M N_t, then
-#     applies it again to that result to get N_{t+2}. This can also be
-#     written as M %*% M %*% N_t, i.e. (M %*% M) %*% N_t, using matrix M
-#     squared, M^2 (though R does not use ^ for this; you would use
-#     M %*% M).
 ```
