@@ -1,0 +1,322 @@
+---
+title: "The Euler-Lotka Equation: Derivation and Application"
+author: "MBE 713 - Population Dynamics"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(gridExtra)
+```
+
+## Introduction
+
+The Euler-Lotka Equation is one of the most important equations in demographic ecology. It provides the mathematical foundation for linking life table data (age-specific survival and fertility) to the intrinsic rate of population increase (λ or r). In this tutorial, we will derive this equation from first principles and demonstrate its application.
+
+## Part 1: Foundation Concepts
+
+### Birth and Death Rates Over Time
+
+Let's consider a population where births and deaths occur continuously. At time $t = 0$, we have a cohort of newborns. As time progresses:
+
+- Some individuals survive to reproductive age
+- Those that survive produce offspring
+- Offspring then grow up and reproduce
+
+### Defining Key Variables
+
+Let's define:
+
+- $l_x$ = Probability that an individual survives from birth to age $x$ (survivorship function)
+- $m_x$ = Age-specific fertility rate (number of female offspring per female of age $x$)
+- $\lambda$ = Finite rate of increase (population multiplier per time unit)
+- $r$ = Intrinsic rate of increase, where $\lambda = e^r$
+- $x$ = Age class
+- $a$ = Age at reproduction (typically starting from 0 or 1 depending on convention)
+
+## Part 2: Derivation of the Euler-Lotka Equation
+
+### Step 1: Counting Offspring From a Birth Cohort
+
+Consider a cohort of $N_0$ newborn females at time $t = 0$. 
+
+At age $x$:
+- The number of females still alive is $N_x = N_0 \cdot l_x$
+- Each of these females produces $m_x$ offspring
+
+So the total number of offspring produced by this cohort at age $x$ is:
+$$\text{Offspring at age } x = N_0 \cdot l_x \cdot m_x$$
+
+### Step 2: Discount Back to Present Value
+
+In a population growing at a constant rate $\lambda$, offspring born at time $t = x$ are worth only $\lambda^{-x}$ relative to newborns at time $t = 0$.
+
+Alternatively, if using the continuous-time version with the intrinsic rate $r$, each offspring born at age $x$ is discounted by factor $e^{-rx}$.
+
+Therefore, the "reproductive value" of a female's offspring at age $x$, measured at time 0, is:
+$$\text{Reproductive Value} = l_x \cdot m_x \cdot \lambda^{-x}$$
+
+or in continuous time:
+$$\text{Reproductive Value} = l_x \cdot m_x \cdot e^{-rx}$$
+
+### Step 3: Sum Across All Ages
+
+The total reproductive output of a female (summed across all reproductive ages) must equal exactly 1 (in a stable population) for the population to replace itself with rate $\lambda$.
+
+This is because each newborn female must, on average, produce exactly one female offspring that survives to replacement level in a stable population.
+
+**This is the Euler-Lotka Equation:**
+
+$$1 = \sum_{x=0}^{\infty} e^{-rx} l_x m_x$$
+
+Or using the discrete form with $\lambda$:
+
+$$1 = \sum_{x=0}^{\infty} \lambda^{-x} l_x m_x$$
+
+### Step 4: Understanding the Equation
+
+Breaking down what this equation means:
+
+- **$e^{-rx}$**: Discounts future offspring to present value (intrinsic rate perspective)
+- **$l_x$**: Only survivors reproduce
+- **$m_x$**: Counts how many offspring each survivor produces
+- **$\sum$**: We sum across all ages to get lifetime reproductive output
+- **$= 1$**: In a stable population, lifetime reproductive output equals 1
+
+## Part 3: Solving the Euler-Lotka Equation
+
+The Euler-Lotka Equation is typically **transcendental** (cannot be solved algebraically). We must solve it numerically to find $r$.
+
+### Example: A Simple Life Table
+
+Let's create a hypothetical example with life table and fertility data:
+
+```{r}
+# Create life table and fertility data
+life_table <- tibble(
+  age = 0:5,
+  lx = c(1.0, 0.8, 0.6, 0.4, 0.2, 0.0),  # Probability of surviving to age x
+  mx = c(0.0, 1.5, 2.0, 1.2, 0.5, 0.0)   # Female offspring per female
+)
+
+print("Life Table:")
+print(life_table)
+```
+
+### Solving the Euler-Lotka Equation Numerically
+
+We need to find the value of $r$ such that:
+$$\sum_{x=0}^{5} e^{-rx} l_x m_x = 1$$
+
+```{r}
+# Define the Euler-Lotka equation
+euler_lotka <- function(r, lx, mx) {
+  x <- 0:(length(lx) - 1)
+  sum(exp(-r * x) * lx * mx) - 1
+}
+
+# Create a function to solve for r
+solve_euler_lotka <- function(lx, mx, r_range = c(-0.5, 0.5)) {
+  result <- uniroot(euler_lotka, interval = r_range, 
+                    lx = lx, mx = mx)
+  return(result$root)
+}
+
+# Solve for r
+r_intrinsic <- solve_euler_lotka(life_table$lx, life_table$mx)
+lambda <- exp(r_intrinsic)
+
+cat("Intrinsic rate of increase (r):", round(r_intrinsic, 4), "\n")
+cat("Finite rate of increase (λ):", round(lambda, 4), "\n")
+```
+
+### Verify the Solution
+
+Let's verify that our solution is correct:
+
+```{r}
+# Verify: Calculate left side of equation with our r value
+verification <- sum(exp(-r_intrinsic * life_table$age) * 
+                    life_table$lx * life_table$mx)
+
+cat("Verification (should equal 1):", round(verification, 6), "\n")
+
+# Calculate generation time
+R0 <- sum(life_table$lx * life_table$mx)  # Net reproductive rate
+T <- sum(life_table$age * life_table$lx * life_table$mx) / R0  # Generation time
+
+cat("\nNet reproductive rate (R0):", round(R0, 4), "\n")
+cat("Generation time (T):", round(T, 4), "time units\n")
+cat("Relationship check: r ≈ ln(R0)/T =", round(log(R0)/T, 4), "\n")
+```
+
+## Part 4: Visualization
+
+### Plot the Euler-Lotka Function
+
+```{r}
+# Create a range of r values and calculate the left side of the equation
+r_values <- seq(-0.3, 0.5, by = 0.01)
+euler_values <- sapply(r_values, function(r) {
+  sum(exp(-r * life_table$age) * life_table$lx * life_table$mx)
+})
+
+# Create the plot
+p1 <- ggplot(data.frame(r = r_values, euler = euler_values), 
+             aes(x = r, y = euler)) +
+  geom_line(size = 1) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red", alpha = 0.7) +
+  geom_vline(xintercept = r_intrinsic, linetype = "dashed", color = "blue", alpha = 0.7) +
+  geom_point(aes(x = r_intrinsic, y = 1), color = "green", size = 3) +
+  labs(title = "Euler-Lotka Equation: Finding Intrinsic Rate (r)",
+       x = "Intrinsic Rate of Increase (r)",
+       y = "Σ(e^(-rx) * lx * mx)",
+       subtitle = paste("Solution: r =", round(r_intrinsic, 4))) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+
+print(p1)
+```
+
+### Visualize Survivorship and Fertility
+
+```{r}
+# Create a combined plot of lx and mx
+p2 <- ggplot(life_table, aes(x = age)) +
+  geom_line(aes(y = lx, color = "Survivorship (lx)"), size = 1) +
+  geom_point(aes(y = lx, color = "Survivorship (lx)"), size = 2) +
+  geom_line(aes(y = mx/max(mx), color = "Fertility (mx, scaled)"), size = 1) +
+  geom_point(aes(y = mx/max(mx), color = "Fertility (mx, scaled)"), size = 2) +
+  scale_y_continuous("Survivorship (lx) or Scaled Fertility",
+                     sec.axis = sec_axis(~. * max(life_table$mx), name = "Fertility (mx)")) +
+  scale_color_manual(values = c("Survivorship (lx)" = "blue", 
+                                "Fertility (mx, scaled)" = "red")) +
+  labs(title = "Survivorship and Fertility Schedules",
+       x = "Age (x)") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom")
+
+print(p2)
+```
+
+### Reproductive Value Through Time
+
+```{r}
+# Calculate reproductive value at each age
+life_table <- life_table %>%
+  mutate(
+    reproductive_value = lx * mx * exp(-r_intrinsic * age),
+    cumulative_value = cumsum(reproductive_value)
+  )
+
+p3 <- ggplot(life_table, aes(x = age)) +
+  geom_bar(aes(y = reproductive_value, fill = "Individual Contribution"), 
+           stat = "identity", alpha = 0.7) +
+  geom_line(aes(y = cumulative_value, color = "Cumulative"), size = 1) +
+  geom_point(aes(y = cumulative_value, color = "Cumulative"), size = 2) +
+  scale_fill_manual(values = c("Individual Contribution" = "steelblue")) +
+  scale_color_manual(values = c("Cumulative" = "darkred")) +
+  labs(title = "Reproductive Value Across Ages",
+       x = "Age (x)",
+       y = "e^(-rx) * lx * mx") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom")
+
+print(p3)
+```
+
+## Part 5: Key Interpretations
+
+### What Does r Tell Us?
+
+```{r results='asis'}
+interpretation <- tribble(
+  ~"Value of r", ~"Population Status", ~"Growth Rate (λ)",
+  "r > 0", "Increasing", sprintf("λ > 1 (%.4f)", lambda),
+  "r = 0", "Stable", "λ = 1",
+  "r < 0", "Declining", "λ < 1"
+)
+
+knitr::kable(interpretation, caption = "Interpretation of the Intrinsic Rate of Increase")
+```
+
+### Important Relationships
+
+1. **Finite vs. Intrinsic Rate**: $\lambda = e^r$
+
+2. **Doubling Time**: $t_{double} = \frac{\ln(2)}{r} = \frac{0.693}{r}$
+
+3. **Generation Time**: $T = \frac{\sum x \cdot l_x \cdot m_x}{\sum l_x \cdot m_x}$
+
+4. **Approximate Relationship**: $r \approx \frac{\ln(R_0)}{T}$ where $R_0 = \sum l_x \cdot m_x$ (Net Reproductive Rate)
+
+```{r}
+# Calculate these relationships
+T <- sum(life_table$age * life_table$lx * life_table$mx) / 
+     sum(life_table$lx * life_table$mx)
+doubling_time <- log(2) / r_intrinsic
+
+cat("Generation time (T):", round(T, 4), "time units\n")
+cat("Doubling time:", round(doubling_time, 4), "time units\n")
+cat("At current r, population doubles every", round(doubling_time, 2), "time units\n")
+```
+
+## Part 6: Extension to Leslie Matrices
+
+The Euler-Lotka Equation is directly connected to Leslie matrix analysis. In Leslie matrices:
+
+- The dominant eigenvalue ($\lambda$) of the Leslie matrix is the finite rate of increase
+- The dominant eigenvector gives the stable age structure
+- We can verify: $\lambda = e^r$ from the Euler-Lotka solution
+
+```{r}
+# Create Leslie matrix from our life table data
+# L = [m0*l1  m1*l1  m2*l1 ... ]
+#     [l1     0      0     ... ]
+#     [0      l2     0     ... ]
+#     [...]
+
+# For this example, we construct the Leslie matrix
+P <- life_table$lx[-1] / life_table$lx[-6]  # Survival to next age class
+m <- life_table$mx                           # Fertility
+
+leslie_matrix <- matrix(0, nrow = 6, ncol = 6)
+leslie_matrix[1, ] <- m * c(1, P)  # First row: m*l1
+diag(leslie_matrix[-1, -6]) <- P    # Survival: diagonal
+
+cat("Leslie Matrix:\n")
+print(round(leslie_matrix, 3))
+
+# Calculate dominant eigenvalue
+eigenvalues <- eigen(leslie_matrix)$values
+lambda_leslie <- Re(eigenvalues[1])
+
+cat("\n\nDominant eigenvalue (λ) from Leslie matrix:", round(lambda_leslie, 4), "\n")
+cat("λ from Euler-Lotka (e^r):", round(lambda, 4), "\n")
+```
+
+## Summary
+
+The **Euler-Lotka Equation** is fundamental because it:
+
+1. **Connects life table data to population growth**: It shows how survival and fertility determine population dynamics
+2. **Provides the intrinsic rate of increase (r)**: This is the maximum possible growth rate under ideal conditions
+3. **Forms the basis for demographic projection**: It underlies Leslie matrix models
+4. **Has widespread application**: It's used in conservation biology, fisheries management, and epidemiology
+
+The general form $1 = \sum_{x=0}^{\infty} e^{-rx} l_x m_x$ elegantly encapsulates the idea that in a stable population, the lifetime reproductive output of one individual must exactly equal one replacement.
+
+## References
+
+- Keyfitz, N. (2005). *Applied Mathematical Demography* (3rd ed.). Springer.
+- Caswell, H. (2001). *Matrix Population Models* (2nd ed.). Sinauer Associates.
+- Gotelli, N. J. (2001). *A Primer of Ecology* (3rd ed.). Sinauer Associates.
