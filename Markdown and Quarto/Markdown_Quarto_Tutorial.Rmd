@@ -1,0 +1,220 @@
+---
+title: "Markdown and Quarto tutorial"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+---
+
+## R Markdown and Quarto
+
+Markdown and Quarto are code formats that automatically generate documents 
+from R, using Latex to make formatted text, tables, equations, tables of
+contents, references, etc. You can make include your R code if you are
+making a demonstration of your methods, or hide it if you are making a 
+report. 
+
+Quarto is the newer format which as more features such as easier biblographies ,
+so you should use it, but Markdown is still widely used. The basic syntax is 
+identical. See the RStudio cheat sheets
+in the help menu for more information on Markdown, as well as the online documentation for
+[Quarto](https://quarto.org/docs/tools/rstudio.html) and
+[Markdown](https://rmarkdown.rstudio.com/)
+
+This is a 10 minute video on getting started [Zoom recording](https://miami.zoom.us/rec/share/66N3YPZgCJspmKmaXsa3szOPhHz9CW9JbNSGRYoSDlJ2YiAKOoIShOz2Rc8cslGe.R5W2gM20JjQC4se_?startTime=1788790749000
+Passcode: pbliKp&3)
+
+To start a Markdown or Quarto document, go to File->New File->R Markdown 
+or Quarto Document. You can choose a title, author, and output format when 
+make the file, and you can change it later. This new file is not saved, so
+you must save it in your desired working directory. Note that you can't 
+easily change working directories when using Quarto or Markdown, so make 
+sure your file and the data you need are in the same directory. 
+
+You may run the code interactively in the document. When you are done writing
+or debugging, hit the the knit button (Markdown) or the render button (Quarto)
+in the top center of the screen to generate the output document. The output
+file will be saved in your working directory.You may also see the output in
+your Viewer window (lower right panel) in RStudio if go to Tools-->Global
+Options-->R Markdown and check "Show outview preview in Viewer Pane".
+
+
+
+## The yaml heading
+
+At the top of the .Rmd or .qmd file, there is a heading with the title, author, date, 
+and output format. Here is a sample yaml heading for Markdown:
+
+````text
+---
+title: "Markdown and Quarto tutorial"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+````
+
+and here is a sample yaml heading for Quarto:
+
+````text
+---
+title: "Quarto example file"
+format: html
+editor: visual
+---
+````
+If you want to print to pdf rather than html, you need a 
+Latex editor. If you don't have one, install the R library 
+[tinytex](https://yihui.org/tinytex/).  
+
+The yaml heading can also include information about file formatting, such as whether
+to make a table of contents, and whether to include a bibliography.
+
+In either Markdown or Quarto, RStudio lets you chose the `visual` or the 
+`source` editor (upper left of your screen), where `source` is the plain code
+and `visual` lets you see at least some of the formatting. 
+
+## Code chunks. 
+
+Your R code must be enclosed in code chunks, which are indicated by 
+three backticks followed by {r} and then the code. For example:
+
+````text
+```{r}
+# Your R code here
+```
+````
+
+Everything between the backticks is treated as R code. You can run the chunks
+one at a time by clicking the green triangle in the upper right of the
+chunk. You can also run all chunks at once by clicking "Run" and then 
+"Run All Chunks". The output will show  up under the chunk in your document, 
+so you no longer need to look at the console or plots window.
+
+For each chunk, you can set options to control the following (these all default 
+to TRUE):
+
+- `echo=FALSE` hides the code but keeps the output
+- `message=FALSE` suppresses messages
+- `warning=FALSE` suppresses warnings
+- `eval=FALSE` shows code without running it
+
+For example:
+
+````text
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+```
+````
+Would load the tidyverse library without showing all the messages about 
+conflicting functions that are printed when you load the library. 
+
+## Formatting the output
+
+
+You can write regular text, and use markdown formatting to make headings, bold,
+italics, lists, etc. 
+
+- `#` creates a first-level heading
+- `##` creates a second-level heading
+- `###` creates a third-level heading
+- `*italic*` or `_italic_`
+- `**bold**`
+- `-` or `*` for bullet lists
+- `1.` for numbered lists
+
+## Embedding formulas
+
+You can also use latex code to embed formulas, using two dollar signs for centered 
+formulas, and on dollar sign for inline formulas.  For example
+
+````text
+$$
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}
+$$ 
+
+where $\bar{x}$ is the mean of the $n$ values $x_i$.
+````
+renders as 
+$$
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}
+$$ 
+
+where $\bar{x}$ is the mean of the $n$ values $x_i$.
+
+
+## Embedding R code in text output
+
+You can also embed R code in your output. This is useful for 
+putting the results of an analysis in the text with the right number of significant 
+figures. For example, if I did the following analysis, I might want to sum it up in 
+words at the end. 
+
+```{r,message=FALSE}
+library(tidyverse)
+ggplot(cars, aes(x=speed,y=dist)) + 
+  geom_point() + 
+  geom_smooth(method="lm")
+carslm<- lm(dist~speed,data=cars)
+```
+
+
+This text: 
+
+```{r}
+#  The slope of the regression line is `r round(coef(carslm)[2],2)` and the intercept is `r round(coef(carslm)[1],2)`.
+```
+
+renders as:
+
+The slope of the regression line is `r round(coef(carslm)[2],2)` and the
+intercept is `r round(coef(carslm)[1],2)`.
+
+## Tables 
+
+You can make simple tables directly in the text by using this format:
+
+````text
+
+| Group    | Mean | SD   |
+|----------|------|------|
+| Control  | 36.0 | 7.4  |
+| Hormone  | 45.4 | 10.8 |
+
+````
+
+which renders as:
+
+| Group    | Mean | SD   |
+|----------|------|------|
+| Control  | 36.0 | 7.4  |
+| Hormone  | 45.4 | 10.8 |
+
+
+You can also use the kable or kableExtra libraries to make nicely formatted
+tables from your R output.  For example, to have the right number
+of significant digits:
+
+```{r,message=FALSE}
+library(kableExtra)
+mtcars |> 
+  group_by(cyl) |>
+  summarize(mean_mpg=mean(mpg), sd_mpg=sd(mpg)) |> 
+  kable(digits=2, caption="Table 1. Summary of mpg by number of cylinders") |>
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+## Conclusion
+
+I recommend you use Quarto (preferred) or Markdown for homework,
+as it is easier to keep track of your notes and code in one place,
+with the output visible. You can 
+copy and paste from the knitted/rendered html file directly into Canvas, and 
+you will have both the code and the output in your answer. 
+
+I am posting my Markdown and Quarto code for all the lectures, so you can
+see some example syntax.
+
+
