@@ -1,0 +1,52 @@
+---
+title: "6c. Problem set: Life tables and Leslie matrices"
+author: "Name:"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Please work on this assignment in your GitHub repository and keep it up to date. Get as far as you can by Sept 10, but it is due completed by Sept 15. 
+
+
+```{r,message=FALSE}
+library(tidyverse)
+library(popbio)
+theme_set(theme_bw())
+```
+
+Use the data from `squirrelLowDensity.csv`, a life table for the same
+squirrel population as in class, but collected at low population density
+(e.g. more food/space per individual). 
+
+
+**Q1.** Read in `squirrelLowDensity.csv`. Add a column `lxmx` and use it to
+calculate $R_0$ (net reproductive rate) and $T_c$ (mean generation time).
+
+
+**Q2.** Build the Leslie matrix for this population (survival terms $P_i$
+and fecundity terms $F_i$ derived from `lx` and `mx`, as done in class for
+the high-density squirrel data).
+
+**Q3.** Calculated $\lambda$ by projecting the
+population forward for 50 years starting from a vector of 1 individual per
+age class, and computing $\lambda$ as the ratio of total population size in
+consecutive years once growth has stabilized.
+
+**Q4.** Compare $\lambda$ for the low-density population to $\lambda$ for
+the high-density population from class (`squirrel.csv`, $\lambda \approx$
+what you calculated in lecture). Is this consistent with density-dependent
+population regulation? Explain briefly.
+
+**Q5.** Use the eigenvalue method to find $\lambda$ for the low-density
+Leslie matrix, and convert it to the intrinsic rate of increase $r_m$.  Is this consistetn with what you got in questions 5. 
+
+**Q6.** Calculate the stable age distribution for the low-density
+population (proportion of individuals in each age class once growth has
+stabilized) using either the code from class or the eigen.analyis function
+
+**Q7.** Using `popbio::eigen.analysis()`, obtain the elasticity matrix for
+the low-density Leslie matrix. Which age class's survival or fecundity
+contributes the most to $\lambda$? Is reproduction or survival more
+important overall?
+
+

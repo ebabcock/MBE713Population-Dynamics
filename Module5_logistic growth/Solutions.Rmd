@@ -1,0 +1,54 @@
+---
+title: "Surplus production Solutions"
+author: "Elizabeth A. Babcock"
+date: "2026-09-07"
+output: html_document
+---
+
+
+1. Sustainable catch for new fishery
+
+a. Quota higher than MSY (=125) depletes the population below Bmsy, eventually
+causing a collapse.
+
+b. Quota lower than MSY causes the fishery to equilibrate at a higher populution
+than Bmsy. Yield is less than MSY but this is a precautionary approach to avoid
+overfishing.
+
+2. Sustainable catch for a depleted fishery starting at 0.1K is 45. You can work
+this out by experiementing with the slider to find the catch that cuases no
+change in biomass. It
+can be calculated directly from the surplus production curve. If $B_t=B_{t+1}$, then
+catch is equal to surplus production:
+
+$$C=rB(1-\frac{B}{K})$$
+
+and $B=0.1K$, so
+
+$$C=0.1rK(0.9)=0.09*0.5*1000=45$$
+
+3. Harvest fractions from Bmsy. If you start at Bmsy, the population will remain constant at a harvest rate
+of 0.25, which is half of r. In other words, 25% of the biomass can be caught 
+every year.
+
+4. Starting from 0.1 K, the population can sustain a harvest rate of 0.45 without
+being further depleted (=45/100). This shows in the linear increase in productivity
+with depletion. Lower rates (such 0.25, which is the MSY rate) would cause recovery.
+
+5. The solver fit (which uses MLE) manages to track the recent trend well, but 
+can't manage the early extreme outliers. 
+
+6.
+
+a.Catching up to 0.31 (=Fmsy) of the biomass allows recovery in the time 
+frame. A quota of 10000 also recovers easily. 
+
+b. Different regions have different preferences for quotas vs. fixed harvest rates
+ICCAT uses fixed quotas while the US reduces F below Fmsy to rebuild. The
+difference is that a fixed harvest rate strategy will reduce catches while 
+the biomass is low (early in the rebuilding period), while a fixed quota during 
+a rebuilding period corresponds to lower harvest rates every year. The fixed
+harvest rate strategy is more precautionary. 
+
+
+

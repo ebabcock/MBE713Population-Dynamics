@@ -1,0 +1,339 @@
+---
+title: "6a. Introduction to Matrix Multiplication"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+```
+
+### Why do we need this?
+
+Matrices and matrix multiplication are a useful tool for several analytic tasks that come up for biological and environmental scienctists, including: (1) multiple regression, and (2) models that  project a system forward in time with a fixed time step, including Leslie matrix models in population dynamics, and animal behavior models. For these uses, you don't need to know all the theory, but you do need to know the basic algorithm for matrix multiplication. 
+
+This short tutorial (about 20-30 minutes) will teach you just enough
+matrix algebra to understand those examples. At the
+end there are some practice questions you can use to check your understanding.
+
+### What is a matrix?
+
+A matrix is just a rectangular table of numbers, arranged in rows and
+columns. For example, here is a matrix with 2 rows and 3 columns. We say this
+matrix has dimensions 2 x 3 (rows x columns):
+
+$$
+A=\begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}
+$$
+
+In R, we can make this matrix like this:
+
+```{r}
+A<-matrix(c(1,2,3,4,5,6),nrow=2,byrow=TRUE)
+A
+```
+
+Notice that `byrow=TRUE` tells R to fill in the numbers row by row (1,2,3
+in the first row, 4,5,6 in the second row). If you leave that out, R fills in
+column by column instead.
+
+A matrix with only one column (or only one row) is often called a **vector**.
+For example
+
+$$
+v=\begin{bmatrix} 10 \\ 20 \\ 30 \end{bmatrix}
+$$
+is a column vector with 3 rows and 1 column (dimensions 3 x 1).
+
+```{r}
+v<-matrix(c(10,20,30),nrow=3)
+v
+```
+
+### Indexing a matrix
+
+Each number in a matrix has a row number and a column number. We refer to the
+number in row $i$ and column $j$ as $A_{i,j}$. So in matrix A above,
+$A_{1,1}=1$, $A_{1,3}=3$, and $A_{2,2}=5$.
+
+In R, we can pull out individual elements using square brackets, with the row
+number first and the column number second, and the indexing works exactly the same way (rows first, columns second).
+
+```{r}
+A[1,1]
+A[1,3]
+A[2,2]
+```
+
+
+### Adding and subtracting matrices
+
+You can add or subtract two matrices if (and only if) they have exactly the
+same dimensions. You just add or subtract the numbers that are in the same
+position.
+
+$$
+\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} +
+\begin{bmatrix} 10 & 20 \\ 30 & 40 \end{bmatrix} =
+\begin{bmatrix} 11 & 22 \\ 33 & 44 \end{bmatrix}
+$$
+
+```{r}
+B<-matrix(c(1,2,3,4),nrow=2,byrow=TRUE)
+C<-matrix(c(10,20,30,40),nrow=2,byrow=TRUE)
+B+C
+```
+
+### Multiplying a matrix by a single number
+
+Multiplying a matrix by a single number (a "scalar") just multiplies every
+element by that number.
+
+```{r}
+2*B
+```
+
+### Matrix multiplication: the key idea
+
+Matrix multiplication (multiplying two matrices together) is NOT the same as
+multiplying the matching elements together like we did with addition. 
+
+To multiply matrix A (dimensions m x n) by matrix B (dimensions n x p), the
+number of **columns** in A must equal the number of **rows** in B. The
+result, called $A B$, will have dimensions m x p.
+
+Each element of the result is found by taking a **row** of A and a
+**column** of B, multiplying the matching entries together, and adding up
+the products. This is sometimes called the "dot product" of the row and the
+column.
+
+#### Example: matrix times a vector
+
+Let's start with the simplest useful case: a matrix times a column vector.
+Suppose
+
+$$
+A=\begin{bmatrix} 2 & 0 & 1 \\ 1 & 3 & 2 \end{bmatrix}
+\qquad
+v=\begin{bmatrix} 5 \\ 10 \\ 1 \end{bmatrix}
+$$
+
+A has dimensions 2 x 3, and v has dimensions 3 x 1. Since A has 3 columns and
+v has 3 rows, we can multiply them, and the result will be 2 x 1.
+
+To get the first element of the result, take the first **row** of A,
+(2, 0, 1), and the (only) **column** of v, (5, 10, 1). Multiply matching
+elements and add:
+
+$$
+2\times5 + 0\times10 + 1\times1 = 10+0+1=11
+$$
+
+To get the second element, take the second row of A, (1, 3, 2), and again the
+column of v, (5, 10, 1):
+
+$$
+1\times5 + 3\times10 + 2\times1 = 5+30+2=37
+$$
+
+So
+
+$$
+Av=\begin{bmatrix} 11 \\ 37 \end{bmatrix}
+$$
+
+Let's confirm this in R. Matrix multiplication in R uses the special symbol
+`%*%`, NOT the ordinary `*`, because `*` multiplies matching elements
+(element-by-element), while `%*%` does the row-times-column matrix
+multiplication described above. 
+
+```{r}
+A<-matrix(c(2,0,1,1,3,2),nrow=2,byrow=TRUE)
+v<-matrix(c(5,10,1),nrow=3)
+A
+v
+A %*% v
+```
+
+That matches our hand calculation.
+
+#### Example: matrix times matrix
+
+Now let's multiply two matrices together. Suppose
+
+$$
+A=\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+\qquad
+B=\begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+$$
+
+Both are 2 x 2, so we can multiply them, and the answer will also be 2 x 2.
+Each element of the answer comes from a row of A and a column of B:
+
+- Row 1 of A, Column 1 of B: $1\times5+2\times7=5+14=19$
+- Row 1 of A, Column 2 of B: $1\times6+2\times8=6+16=22$
+- Row 2 of A, Column 1 of B: $3\times5+4\times7=15+28=43$
+- Row 2 of A, Column 2 of B: $3\times6+4\times8=18+32=50$
+
+So
+
+$$
+AB=\begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}
+$$
+
+```{r}
+A<-matrix(c(1,2,3,4),nrow=2,byrow=TRUE)
+B<-matrix(c(5,6,7,8),nrow=2,byrow=TRUE)
+A %*% B
+```
+
+**Important:** matrix multiplication is usually NOT commutative, meaning
+$AB$ is usually not the same as $BA$. Order matters!
+
+```{r}
+B %*% A
+```
+
+You can see this gives a different answer than `A %*% B`.
+
+### A practical use: repeated multiplication to project forward in time
+
+One  common use of matrix multiplication is to describe how a system
+changes from one time step to the next, and then repeat the same
+multiplication over and over to project many time steps into the future.
+
+For example, suppose we have a very simple weather model where the weather (W)
+tomorrow depends only on the weather today. Let a vector $W_t$ describe the
+"state" of the system (probability that the day is Sunny or Rainy) at time $t$:
+
+$$
+W_t=\begin{bmatrix} Sunny_t \\ Rainy_t \end{bmatrix}
+$$
+
+And suppose there is a "transition matrix" $M$ that describes the
+probability of moving from one state to another:
+
+$$
+M=\begin{bmatrix} 0.8 & 0.4 \\ 0.2 & 0.6 \end{bmatrix}
+$$
+
+Here, column 1 refers to today being Sunny, and column 2 refers to today
+being Rainy. Row 1 is the probability that tomorrow is Sunny (conditional on whether it is Sunny or Rainy today), and row 2 is
+the probability that tomorrow is Rainy (conditional on whether it is Sunny or Rainy today). So this matrix says: if today is
+Sunny, there is an 80% chance tomorrow is Sunny and 20% chance tomorrow is
+Rainy; if today is Rainy, there is a 40% chance tomorrow is Sunny and 60%
+chance tomorrow is Rainy.
+
+If today is Sunny, $W_0=\begin{bmatrix}1\\0\end{bmatrix}$, we can
+find tomorrow's state by matrix multiplication:
+
+$$
+W_1 = M W_0
+$$
+
+```{r}
+M<-matrix(c(0.8,0.4,0.2,0.6),nrow=2,byrow=TRUE)
+W0<-matrix(c(1,0),nrow=2)
+W1<-M %*% W0
+W1
+```
+
+To project two days ahead, we multiply again, using $W_1$ as the new
+starting point:
+
+$$
+W_2 = M W_1 = M (M W_0) 
+$$
+
+```{r}
+W2<-M %*% W1
+W2
+```
+
+We could keep doing this, one day at a time, to see how the probabilities
+change over many days. Here we do it for 20 days using a loop, storing each day's result in a matrix with one column per day.
+
+```{r}
+ndays<-20
+W<-matrix(NA,nrow=2,ncol=ndays)
+W[,1]<-c(1,0)  #Day 1: Sunny for sure
+for(i in 2:ndays){
+  W[,i]<-M %*% W[,i-1]
+}
+round(W,3)
+```
+
+Notice that after a while, the probabilities stop changing much from one day
+to the next. This is called reaching a "stable" or "equilibrium" state. We can see the probabilities arrive at equilibrium if we plot the probability of sun and probablity of rain over time.
+
+```{r}
+weather<-data.frame(day=1:ndays,Sunny=W[1,],Rainy=W[2,])
+ggplot(weather,aes(x=day))+
+  geom_line(aes(y=Sunny,color="Sunny"))+
+  geom_line(aes(y=Rainy,color="Rainy"))+
+  labs(x="Day",y="Probability",color="")+
+  theme_bw()
+```
+
+### Summary of key points
+
+1. A matrix is a rectangular table of numbers with rows and columns.
+2. You can add/subtract matrices of the same dimensions element by element.
+3. Matrix multiplication ($A \times B$, written `A %*% B` in R) is NOT the
+   same as multiplying matching elements. Instead, each element of the result
+   comes from multiplying a **row** of A by a **column** of B and adding the
+   products.
+4. To multiply $AB$, the number of columns in A must equal the number of
+   rows in B.
+5. Matrix multiplication is generally not commutative: $AB \ne BA$.
+6. Repeatedly multiplying a matrix by a vector (updating the vector each
+   time) is a common way to project a system forward in time, and it often
+   settles into a stable pattern after enough repetitions.
+
+### Questions
+
+Try these on paper first, then check your answers in R.
+
+**Question 1.** What are the dimensions of the matrix
+
+$$
+Q=\begin{bmatrix} 3 & 1 & 0 \\ 2 & 5 & 4 \end{bmatrix}
+$$
+and what is the value of $Q_{2,3}$?
+
+**Question 2.** Can you multiply a 3 x 2 matrix by a 2 x 4 matrix? If so,
+what will be the dimensions of the result? Can you multiply a 3 x 2 matrix
+by a 3 x 2 matrix (using `%*%`, not element-by-element multiplication)?
+
+**Question 3.** By hand, calculate $Av$ where
+
+$$
+A=\begin{bmatrix} 1 & 2 \\ 0 & 1 \\ 3 & 1 \end{bmatrix}
+\qquad
+v=\begin{bmatrix} 2 \\ 5 \end{bmatrix}
+$$
+
+Then check your answer using R.
+
+**Question 4.** By hand, calculate $AB$ where
+
+$$
+A=\begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}
+\qquad
+B=\begin{bmatrix} 1 & 4 \\ 2 & 0 \end{bmatrix}
+$$
+
+Then calculate $BA$. Are they the same? Check both in R.
+
+
+```{r,eval=FALSE,echo=FALSE}
+# Answers (do not show to students by default)
+# Q1: Q is 2 x 3 (2 rows, 3 columns). Q[2,3] = 4
+# Q2: Yes, a 3x2 times a 2x4 gives a 3x4 result. A 3x2 times a 3x2 with %*%
+#     is NOT allowed (columns of first, 2, must equal rows of second, 3).
+# Q3: Av = [1*2+2*5, 0*2+1*5, 3*2+1*5]' = [12,5,11]'
+# Q4: AB = [2*1+1*2, 2*4+1*0; 0*1+3*2, 0*4+3*0] = [4,8;6,0]
+#     BA = [1*2+4*0, 1*1+4*3; 2*2+0*0, 2*1+0*3] = [2,13;4,2]
+#     Not the same.
+```

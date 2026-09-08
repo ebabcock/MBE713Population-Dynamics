@@ -1,0 +1,124 @@
+---
+title: "New Runs"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### Using JABBA
+
+First, install JABBA and JAGS
+
+```{r}
+# Installation
+# install.packages(devtools)
+# devtools:: install_github("jabbamodel/JABBA")
+```
+
+Original South Atlantic Swordfish example
+Winker et al. (2018). JABBA: Just Another Biomass Assessment
+
+```{r}
+library(JABBA)
+swos <- iccat$swos
+
+assessment <- "SWOSiccat"
+scenario <- "Schaefer"
+
+File <- getwd() #"C:/Users/Elizabeth A Babcock/Box/RSM 612/RSM 612 lectures" # LINK to your folder of choice here
+assessment<-"SWO"
+output.dir = file.path(File,assessment)
+dir.create(output.dir,showWarnings = FALSE)
+```
+
+### Compile JABBA JAGS model and input object
+
+```{r}
+jbswos <- build_jabba(catch=swos$catch,  #vector of catches
+                      cpue=swos$cpue,  #data frame of CPUE by fleet
+                      se=swos$se,  #input standard deviations.
+                      assessment=assessment, #name of assessment
+                      scenario = scenario, #scenario name
+                      model.type = "Schaefer",  #Schaefer is the logistic model
+                      r.prior=c(0.42,1), #mean and log-sd for lognormal
+                      K.prior = c(250000,1), #mean and log-sd for lognormal
+                      psi.prior = c(1,0.25), #mean and log-sd for lognormal
+                      sigma.est = TRUE,  # observation error by fleet
+                      igamma=c(4,0.01), # default process error
+                      P_bound = c(0.02,1.1),
+                      verbose=FALSE, #Bounds of B/K
+                      sigmaobs_bound = 0.1, #upper limit of observation error
+                      sigmaproc_bound = 0.05) #upper limit of process error)
+```
+
+Plot indices
+
+```{r}
+jbplot_indices(jbswos)
+```
+
+fit JABBA
+
+This is running a model in JAGS so it takes some time
+
+```{r}
+fit.swos <- fit_jabba(jbswos,  #the build_jabba object
+                      save.jabba=TRUE,  #TO save the directory
+                      output.dir=output.dir,
+                      ni = 500000,  #ni,nt,nb and nc are MCMC settings
+                      nt = 100,
+                      nb = 5000,
+                      nc = 2)
+```
+
+Plots to see if the MCMC converged
+
+```{r}
+jbplot_mcmc(fit.swos)
+jbplot_ppdist(fit.swos)  #Posterior and prior distributions
+jbplot_PPC(fit.swos)  #Posterior predictive checks
+```
+
+
+Make some plots to see if the fit is good
+
+```{r}
+jbplot_catch(fit.swos)  #catches
+jbplot_cpuefits(fit.swos)  #Fits to CPUE indices
+jbplot_logfits(fit.swos)   #Fits to CPUE indices in log scale
+jbplot_residuals(fit.swos)  # Residuals
+jbplot_runstest(fit.swos)  # A test of whether there are patterns in residuals
+```
+
+Plots to see the status of the population
+
+```{r}
+jbplot_ensemble(fit.swos,subplots=1:2)
+jbplot_kobe(fit.swos)
+jbplot_spphase(fit.swos)
+```
+
+
+### Projections
+
+ ICCAT Style projections, based on a TAC: total allowable catch
+
+```{r}
+Ccur = 10056
+TACs = seq(10000,18000,2000)
+fw.swos= fw_jabba(fit.swos,nyears=10,imp.yr=4,
+                  initial = Ccur,
+                  imp.values = TACs,
+                  quant="Catch",type="abs",
+                  nsq=3,stochastic = T,AR1=F)
+jbplot_ensemble(fw.swos,legendcex = 0.4,xlim=c(2015,2025),subplots = c(1:4),add=T)
+```
+
+### Hindcast cross-validation and retrospective analysis
+
+```{r}
+hc1 <- hindcast_jabba(jbswos,fit.swos,peels=1:5)
+ # Show Retrospective Pattern
+jbplot_retro(hc1)
+jbplot_hcxval(hc1)
+```
