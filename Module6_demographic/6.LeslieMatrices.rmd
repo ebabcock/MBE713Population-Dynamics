@@ -230,7 +230,7 @@ round(Re(eigen(Leslie)$vectors[,1]/
 ```{r}
 #Function to calculate left eigenvalue #https://stackoverflow.com/questions/14912279/how-to-obtain-right-eigenvectors-of-matrix-in-r
 left_eigen<-function(A) {
-  Re(eigen(t(Leslie))$vectors)
+  Re(eigen(t(A))$vectors)
 }
 w<-Re(eigen(Leslie)$vectors)[,1]
 v<-left_eigen(Leslie)[,1]
