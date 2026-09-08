@@ -122,7 +122,7 @@ euler_lotka <- function(r, lx, mx) {
 }
 
 # Create a function to solve for r
-solve_euler_lotka <- function(lx, mx, r_range = c(-0.5, 0.5)) {
+solve_euler_lotka <- function(lx, mx, r_range = c(-0.5, 1)) {
   result <- uniroot(euler_lotka, interval = r_range, 
                     lx = lx, mx = mx)
   return(result$root)
@@ -162,7 +162,7 @@ cat("Relationship check: r ≈ ln(R0)/T =", round(log(R0)/T, 4), "\n")
 
 ```{r}
 # Create a range of r values and calculate the left side of the equation
-r_values <- seq(-0.3, 0.5, by = 0.01)
+r_values <- seq(-0.3, 1, by = 0.01)
 euler_values <- sapply(r_values, function(r) {
   sum(exp(-r * life_table$age) * life_table$lx * life_table$mx)
 })

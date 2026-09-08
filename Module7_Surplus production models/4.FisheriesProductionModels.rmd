@@ -1,0 +1,301 @@
+---
+title: "4. Fisheries production models"
+author: "Beth Babcock"
+date: "`Sys.Date()`"
+output: html_document
+---
+
+
+```{r,message=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+### Fitting a model with Bayesian methods
+
+This is the same data we looked at for a normal likelihood. 
+
+```{r}
+data<-data.frame(i=1:30,x=c(7.72, 4.79, 5.78, 4.89, 2.25, 4.17, 4.21, 4.88, 7.2, 6.53, 4.67, 4.49, 6.39, 6.11, 3.62, 3.59, 5.73, 6.54, 4.78, 6.76, 5.8, 
+3.78, 5.68, 2.74, 7.87, 8.96, 4.27, 2.91, 6.14, 4.73))  
+```
+
+Now let's try some priors. First, an informative prior. Let's assume that we have good information about the value of mu from another study, so our prior has a mean of 2 and sd of 2.
+
+```{r}
+priormean<-2
+priorsd<-10
+posterior<-data.frame(mu=seq(0,10,0.01))
+for(i in 1:nrow(posterior)) {
+ posterior$LL[i]<-sum(dnorm(data$x,mean=posterior$mu[i],sd=2))
+}
+posterior$logprior<-dnorm(posterior$mu,mean=priormean,sd=priorsd)
+posterior$logposterior<-posterior$LL*posterior$logprior
+ggplot(posterior,aes(x=mu))+
+  geom_line(aes(y=LL/max(LL),color="log-likelihood"))+
+  geom_line(aes(y=logprior/max(logprior),color="log-prior"))+
+  geom_line(aes(y=logposterior/max(logposterior),color="log-posterior"))+
+  ggtitle("Posterior is prior times likelihood")
+
+```
+Same with a less informative prior
+
+```{r}
+priormean<-2
+priorsd<-10
+posterior<-data.frame(mu=seq(0,10,0.01))
+for(i in 1:nrow(posterior)) {
+ posterior$LL[i]<-sum(dnorm(data$x,mean=posterior$mu[i],sd=2))
+}
+posterior$logprior<-dnorm(posterior$mu,mean=priormean,sd=priorsd)
+posterior$logposterior<-posterior$LL*posterior$logprior
+ggplot(posterior,aes(x=mu))+
+  geom_line(aes(y=LL/max(LL),color="log-likelihood"))+
+  geom_line(aes(y=logprior/max(logprior),color="log-prior"))+
+  geom_line(aes(y=logposterior/max(logposterior),color="log-posterior"))+
+  ggtitle("Posterior is prior times likelihood")+
+  labs(y="Probability density",x="Value of mu parameter",color="")
+view(posterior)
+```
+Posterior is more similar to the likelihood
+
+Now make a function to minimize to get the mode of the posterior distribution
+
+```{r}
+getNegLogPosterior<-function(theta,data) {
+    LL<-dnorm(x=data$x, #data is an input, with a variable called x
+              mean=theta["mu"], #mean is the parameter we want to calculate
+              sd=2,
+              log=TRUE) #fix standard deviation for this example
+    logprior<-dnorm(theta["mu"],data$priormean,data$priorsd,log=TRUE)
+    -sum(LL)-logprior  #return negative total log likelihood plus priors
+}
+getNegLogPosterior(c(mu=5.2),list(x=data$x,priormean=2,priorsd=2))
+```
+
+Use minimizer function optim to find the value of mu that has the lowest -logposterior
+
+```{r}
+modFit<-optim(par=c(mu=3),
+              fn=getNegLogPosterior,
+              data=list(x=data$x,priormean=2,priorsd=2),
+              method="L-BFGS-B")
+modFit$par
+
+```
+
+
+### Bayesian production models in R. 
+
+Possible priors
+
+```{r}
+dlogunif<-function(x,minval,maxval,logTrans=TRUE) {
+  if(minval==0) minval<-0.0000001
+  prob<-1/(x*(log(maxval)-log(minval)))
+  if(logTrans) return<-log(prob) else 
+    return=prob
+  return 
+}
+dlogunif(1,0,1000,logTrans=FALSE)
+
+ggplot(data.frame(r=c(0,1)),aes(x=r))+
+  geom_function(aes(color="Lognormal, sdlog=0.5"),
+                fun=dlnorm,
+                args=list(meanlog = log(0.2), sdlog = 0.5))+
+  geom_function(aes(color="Lognormal, sdlog=2"),
+                fun=dlnorm,
+                args=list(meanlog = log(0.2), sdlog = 2))+
+  geom_function(aes(color="Uniform"),
+                fun=dunif,
+                args=list(min=0,max=1))+
+  ggtitle("Priors for r with median of 0.2")+
+  labs(x="r",y="Probability",color="")
+ggplot(data.frame(K=c(1000,100000)),aes(x=K))+
+  geom_function(aes(color="Lognormal\nmean=50000, sdlog=2"),
+                fun=dlnorm,
+                args=list(meanlog = log(50000), sdlog = 2))+
+  geom_function(aes(color="Uniform on log"),
+                fun=dlogunif,
+                args=list(minval=1000,maxval=100000,logTrans=FALSE))+
+  geom_function(aes(color="Uniform"),
+                fun=dunif,
+                args=list(min=1000,max=100000))+
+  ggtitle("Priors for K, lnorm has median of 50000")+
+  labs(x="K",y="Probability",color="")
+ggplot(data.frame(phi=c(0,2)),aes(x=phi))+
+  geom_function(aes(color="Lognormal\nmean=1, sdlog=0.1"),
+                fun=dlnorm,
+                args=list(meanlog = log(1), sdlog = 0.1))+
+  geom_function(aes(color="Lognormal\nmean=1, sdlog=0.5"),
+                fun=dlnorm,
+                args=list(meanlog = log(1), sdlog = 0.2))+
+  geom_function(aes(color="Lognormal\nmean=1, sdlog=0.2"),
+                fun=dlnorm,
+                args=list(meanlog = log(1), sdlog = 0.5))+
+  ggtitle("Priors for starting biomass ratio B0/K with median of 1")+
+  labs(x="phi=Bo/K",y="Probability",color="")
+
+```
+
+For small values of log-sd, the log-sd is very similar to the CV which is mean(x)/sd(x), so they are sometimes used interchangeably. 
+
+### Using JABBA
+
+First, install JABBA and JAGS
+
+```{r}
+# Installation
+# install.packages(devtools)
+# devtools:: install_github("jabbamodel/JABBA")
+```
+
+Original South Atlantic Swordfish example
+Winker et al. (2018). JABBA: Just Another Biomass Assessment
+
+```{r}
+library(JABBA)
+swos <- iccat$swos
+
+assessment <- "SWOSiccat"
+scenario <- "Schaefer"
+
+File <- getwd() #"C:/Users/Elizabeth A Babcock/Box/RSM 612/RSM 612 lectures" # LINK to your folder of choice here
+assessment<-"SWO"
+output.dir = file.path(File,assessment)
+dir.create(output.dir,showWarnings = FALSE)
+```
+
+### Compile JABBA JAGS model and input object
+
+```{r}
+jbswos <- build_jabba(catch=swos$catch,  #vector of catches
+                      cpue=swos$cpue,  #data frame of CPUE by fleet
+                      se=swos$se,  #input standard deviations.
+                      assessment=assessment, #name of assessment
+                      scenario = scenario, #scenario name
+                      model.type = "Schaefer",  #Schaefer is the logistic model
+                      r.prior=c(0.42,0.37), #mean and log-sd for lognormal
+                      K.prior = c(250000,1), #mean and log-sd for lognormal
+                      psi.prior = c(1,0.25), #mean and log-sd for lognormal
+                      sigma.est = TRUE,  # observation error by fleet
+                      igamma=c(4,0.01), # default process error
+                      P_bound = c(0.02,1.1),
+                      verbose=FALSE, #Bounds of B/K
+                      sigmaobs_bound = 0.1, #upper limit of observation error
+                      sigmaproc_bound = 0.2) #upper limit of process error)
+```
+
+Plot indices
+
+```{r}
+jbplot_indices(jbswos)
+```
+
+fit JABBA
+
+This is running a model in JAGS so it takes some time
+
+```{r}
+fit.swos <- fit_jabba(jbswos,  #the build_jabba object
+                      save.jabba=TRUE,  #TO save the directory
+                      output.dir=output.dir,
+                      ni = 50000,  #ni,nt,nb and nc are MCMC settings
+                      nt = 10,
+                      nb = 5000,
+                      nc = 2)
+```
+Plots to see if the MCMC converged
+
+```{r}
+jbplot_mcmc(fit.swos)
+jbplot_ppdist(fit.swos)  #Posterior and prior distributions
+jbplot_PPC(fit.swos)  #Posterior predictive checks
+```
+
+
+Make some plots to see if the fit is good
+
+```{r}
+jbplot_catch(fit.swos)  #catches
+jbplot_cpuefits(fit.swos)  #Fits to CPUE indices
+jbplot_logfits(fit.swos)   #Fits to CPUE indices in log scale
+jbplot_residuals(fit.swos)  # Residuals
+jbplot_runstest(fit.swos)  # A test of whether there are patterns in residuals
+```
+
+Plots to see the status of the population
+
+```{r}
+jbplot_ensemble(fit.swos,subplots=1:2)
+jbplot_kobe(fit.swos)
+jbplot_spphase(fit.swos)
+```
+
+
+### Projections
+
+ ICCAT Style projections, based on a TAC: total allowable catch
+
+```{r}
+Ccur = 10056
+TACs = seq(10000,18000,2000)
+fw.swos= fw_jabba(fit.swos,nyears=10,imp.yr=4,
+                  initial = Ccur,
+                  imp.values = TACs,
+                  quant="Catch",type="abs",
+                  nsq=3,stochastic = T,AR1=F)
+jbplot_ensemble(fw.swos,legendcex = 0.4,xlim=c(2015,2025),subplots = c(1:4),add=T)
+```
+
+### Hindcast cross-validation and retrospective analysis
+
+```{r}
+hc1 <- hindcast_jabba(jbswos,fit.swos,peels=1:5)
+ # Show Retrospective Pattern
+jbplot_retro(hc1)
+jbplot_hcxval(hc1)
+```
+### Pella-Tomlinson model
+
+```{r}
+scenario<-"Pella"
+jbswos <- build_jabba(catch=swos$catch,  #vector of catches
+                      cpue=swos$cpue,  #data frame of CPUE by fleet
+                      se=swos$se,  #input standard deviations.
+                      assessment=assessment, #name of assessment
+                      scenario = scenario, #scenario name
+                      model.type = "Pella",  #Pella is an assymetric yield curve,
+                      BmsyK = 0.4, #Location of Bmsy/K
+                      r.prior=c(0.42,0.37), #mean and log-sd for lognormal
+                      K.prior = c(250000,1), #mean and log-sd for lognormal
+                      psi.prior = c(1,0.25), #mean and log-sd for lognormal
+                      sigma.est = TRUE,  # observation error by fleet
+                      igamma=c(4,0.01), # default process error
+                      P_bound = c(0.02,1.1), #Bounds of B/K
+                      sigmaobs_bound = 0.1, #upper limit of observation error
+                      sigmaproc_bound = 0.2) #upper limit of process error)
+fit.swos2 <- fit_jabba(jbswos,  #the build_jabba object
+                      save.jabba=TRUE,  #TO save the directory
+                      output.dir=output.dir,
+                      ni = 50000,  #ni,nt,nb and nc are MCMC settings
+                      nt = 10,
+                      nb = 5000,
+                      nc = 2)
+
+#save.image()
+```
+
+Plot yield curve with status
+
+```{r}
+jbplot_spdyn(fit.swos2)
+```
+
+Compare runs
+
+```{r}
+jbplot_ensemble(list(fit.swos,fit.swos2),subplots=1:2)
+jbplot_kobe(fit.swos2)
+
+```

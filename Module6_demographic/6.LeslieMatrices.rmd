@@ -48,7 +48,7 @@ ggplot(cohort,aes(x=x)) +
 Vertical life table 
 
 
-```{r}
+```{r,message=FALSE, warning=FALSE}
 vertical<-read_csv("vertical.csv")
 vertical<-vertical |>
   mutate(Years_in_ageclass=x1-x0,
@@ -72,7 +72,7 @@ write_csv(vertical,"verticalSolved.csv")
 
 Read in the squirrel data, lawn pre-intervention only
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 squirrel<-read_csv("squirrel.csv")
 squirrel<-squirrel |> mutate(lxmx=lx*mx)
 squirrel
@@ -91,9 +91,11 @@ Mean generation time
 Tc<-with(squirrel,sum(x*lxmx)/sum(lxmx))
 Tc
 ```
-Euler-Lotka equation
 
-Births at time t are equal to the sum over age groups (x) number of females born x years ago, times their survival to age x (lx) times their fecundity at age x (mx).
+### Euler-Lotka equation
+
+Births at time t are equal to the sum over age groups (x) number of females born x
+years ago, times their survival to age x (lx) times their fecundity at age x (mx).
 
 $$
 B_t= \sum_{x=0}^{x_{max}} B_{t-x} l_x m_x
@@ -104,7 +106,7 @@ And population is growing (or declining) at rate $\lambda=e^{r_m}$. So births ar
 $$
 B_t=B_0\lambda^t
 $$
-Substituting
+Substituting $B_t=B_0\lambda^t$ and $B_{t-x}=B_0\lambda^{t-x}$ into the first equation gives
 
 
 $$
@@ -162,9 +164,10 @@ which is, for the squirrels
 rc=log(R0)/Tc
 rc
 ```
+
 This would be exactly correct for an annual species, and it is approximate for species that reproduce multiple times. 
 
-Matrix version
+### Matrix version
 
 ```{r}
 Pvals<-squirrel$lx[2:6]/squirrel$lx[1:5]
@@ -225,7 +228,7 @@ round(Re(eigen(Leslie)$vectors[,1]/
 ### Elasticity analysis
 
 ```{r}
-#Function to calculated left eigenvalue #https://stackoverflow.com/questions/14912279/how-to-obtain-right-eigenvectors-of-matrix-in-r
+#Function to calculate left eigenvalue #https://stackoverflow.com/questions/14912279/how-to-obtain-right-eigenvectors-of-matrix-in-r
 left_eigen<-function(A) {
   Re(eigen(t(Leslie))$vectors)
 }
@@ -337,7 +340,7 @@ summary(lambdaSims)
 mean(lambdaSims,na.rm=TRUE) 
 confidenceInterval<-quantile(lambdaSims,c(0.025,0.975))
 round(confidenceInterval,3)
-ggplot(data.frame(lambda<-lambdaSims),aes(x=lambda,y=..density..))+
+ggplot(data.frame(lambda<-lambdaSims),aes(x=lambda,y=after_stat(density)))+
   geom_histogram(fill="darkgrey",color="black",bins=50)+
   geom_density(color="red")
 ```
