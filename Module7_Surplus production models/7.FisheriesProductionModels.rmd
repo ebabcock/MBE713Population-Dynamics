@@ -7,13 +7,13 @@ output: html_document
 
 
 ```{r,message=FALSE}
-library(ggplot2)
+library(tidyverse)
 theme_set(theme_bw())
 ```
 
 ### Fitting a model with Bayesian methods
 
-This is the same data we looked at for a normal likelihood. 
+Here is some data, to calculate a mean using Bayesian priors
 
 ```{r}
 data<-data.frame(i=1:30,x=c(7.72, 4.79, 5.78, 4.89, 2.25, 4.17, 4.21, 4.88, 7.2, 6.53, 4.67, 4.49, 6.39, 6.11, 3.62, 3.59, 5.73, 6.54, 4.78, 6.76, 5.8, 
@@ -24,7 +24,7 @@ Now let's try some priors. First, an informative prior. Let's assume that we hav
 
 ```{r}
 priormean<-2
-priorsd<-10
+priorsd<-2
 posterior<-data.frame(mu=seq(0,10,0.01))
 for(i in 1:nrow(posterior)) {
  posterior$LL[i]<-sum(dnorm(data$x,mean=posterior$mu[i],sd=2))
@@ -205,6 +205,7 @@ fit.swos <- fit_jabba(jbswos,  #the build_jabba object
                       nb = 5000,
                       nc = 2)
 ```
+
 Plots to see if the MCMC converged
 
 ```{r}
@@ -256,6 +257,7 @@ hc1 <- hindcast_jabba(jbswos,fit.swos,peels=1:5)
 jbplot_retro(hc1)
 jbplot_hcxval(hc1)
 ```
+
 ### Pella-Tomlinson model
 
 ```{r}

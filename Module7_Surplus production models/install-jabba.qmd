@@ -1,0 +1,182 @@
+---
+title: "Installing JABBA "
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    theme: cosmo
+execute:
+  echo: true
+---
+
+## Overview
+
+This guide will help you install **JABBA** (Just Another Bayesian Biomass Assessment) on your computer. If you already have **R** and **RStudio** installed, skip to step 3.
+
+You will install:
+
+1.  **R**
+2.  **RStudio**
+3.  **JAGS 4.3.2** (required by JABBA)
+4.  Required **R packages** (including JABBA)
+
+After installation, you’ll run a quick test to verify everything works.
+
+------------------------------------------------------------------------
+
+## Choose your operating system
+
+::: panel-tabset
+## Windows
+
+### 1) Install R
+
+- Go to CRAN: <https://cran.r-project.org/>
+- Click **Download R for Windows**
+- Install the latest release of R.
+
+### 2) Install RStudio (recommended)
+
+- Go to Posit RStudio Desktop: <https://posit.co/download/rstudio-desktop/>
+- Download and install the free Desktop version.
+
+### 3) Install JAGS 4.3.2
+
+- Go to the JAGS SourceForge page: <https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/>
+- Download **JAGS-4.3.2** for Windows and run the installer.
+- Use default install settings.
+
+### 4) Install required R packages
+
+Open **RStudio** (or R) and run:
+
+``` r
+install.packages(c(
+  "remotes",
+  "rjags",
+  "R2jags",
+  "coda",
+  "ggplot2",
+  "dplyr",
+  "tidyr"
+))
+```
+
+Now install JABBA from GitHub:
+
+``` r
+remotes::install_github("jabbamodel/JABBA")
+```
+
+### 5) Test your installation
+
+Run:
+
+``` r
+library(rjags)
+library(JABBA)
+
+# Check that JAGS is visible from R
+rjags::jags.version()
+```
+
+If a JAGS version prints (for example 4.3.2), your setup is working.
+
+### 6) Common Windows troubleshooting
+
+- **Error: package ‘rjags’ had non-zero exit status**
+  - Usually means JAGS is not installed or not found.
+  - Reinstall JAGS 4.3.2, then restart RStudio and reinstall `rjags`.
+- **GitHub install fails**
+  - Update `remotes`: `install.packages("remotes")`
+  - Try again: `remotes::install_github("jabbamodel/JABBA")`
+- **Permission issues**
+  - Run RStudio as administrator once, or choose a personal library when prompted.
+- **Rtools**
+  - Install only if package installation fails with compile/build errors mentioning “Rtools”, “gcc”, or “make”.
+  - Download from: <https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html>. Click to install, then re-start R studio.
+
+## Mac
+
+### 1) Install R
+
+- Go to CRAN: <https://cran.r-project.org/>
+- Click **Download R for macOS**
+- Install the latest release of R for your macOS version.
+
+### 2) Install RStudio
+
+- Go to Posit RStudio Desktop: <https://posit.co/download/rstudio-desktop/>
+- Download and install the free Desktop version.
+
+### 3) Install JAGS 4.3.2
+
+- Go to the JAGS SourceForge page: <https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Mac%20OS%20X/>
+- Download the **JAGS 4.3.2 .pkg** installer for macOS.
+- Run installer and keep default options.
+
+> On newer macOS versions, you may need to allow the installer in **System Settings → Privacy & Security**.
+
+### 4) Install required R packages
+
+Open **RStudio** (or R) and run:
+
+``` r
+install.packages(c(
+  "remotes",
+  "rjags",
+  "R2jags",
+  "coda",
+  "ggplot2",
+  "dplyr",
+  "tidyr"
+))
+```
+
+Now install JABBA from GitHub:
+
+``` r
+remotes::install_github("jabbamodel/JABBA")
+```
+
+### 5) Test your installation
+
+Run:
+
+``` r
+library(rjags)
+library(JABBA)
+
+# Check that JAGS is visible from R
+rjags::jags.version()
+```
+
+If a JAGS version prints (for example 4.3.2), your setup is working.
+
+### 6) Common Mac troubleshooting
+
+- **rjags configuration/compile errors**
+  - Make sure JAGS 4.3.2 is installed first.
+
+  - Restart RStudio after installing JAGS.
+
+  - If prompted for developer tools, install Apple Command Line Tools:
+
+    ``` bash
+    xcode-select --install
+    ```
+- **“Package not available for this version of R”**
+  - Update R to a recent version, then retry package installation.
+- **M-series (Apple Silicon) compatibility issues**
+  - Ensure your R + RStudio + JAGS are all current and architecture-compatible.
+  - Reinstall `rjags` after confirming JAGS installation.
+:::
+
+------------------------------------------------------------------------
+
+## Verify with a simple JABBA run (Optional)
+
+Once installation succeeds, you can try loading example data and fitting a simple model, following the instructions in the JABBA GitHub page.
+
+<https://github.com/jabbamodel/JABBA>
