@@ -316,8 +316,40 @@ getLeslie<-function(lx,mx) {
   for(i in 1:4) Leslie[i+1,i]<-Pvals[i]
   Leslie
 }
+#Each vector has the following CV
 squirrel.lx.cv<-0.02
 squirrel.mx.cv<-0.05
+
+
+```
+
+The distributions of the survivals and fecundities look like this.
+
+```{r}
+ggplot(data.frame(Survival=0:0.5),aes(x=Survival))+
+  stat_function(aes(color="lx 2"),fun = dnorm,
+                args=list(mean=squirrel$lx[2],
+                          sd=squirrel.lx.cv*squirrel$lx[2]))+
+  stat_function(aes(color="lx 3"),fun = dnorm,
+                args=list(mean=squirrel$lx[3],
+                          sd=squirrel.lx.cv*squirrel$lx[3]))+
+  stat_function(aes(color="lx 4"),fun = dnorm,
+                args=list(mean=squirrel$lx[4],
+                          sd=squirrel.lx.cv*squirrel$lx[4]))+
+  xlim(0,0.5)+
+  ggtitle("Survival to each age with variability")
+ggplot(data.frame(Fecundity=0:5),aes(x=Fecundity))+
+  stat_function(aes(color="mx 2"),fun = dnorm,
+                args=list(mean=squirrel$mx[2],
+                          sd=squirrel.mx.cv*squirrel$mx[2]))+
+  stat_function(aes(color="mx 3+"),fun = dnorm,
+                args=list(mean=squirrel$mx[3],
+                          sd=squirrel.mx.cv*squirrel$mx[3]))+
+  ggtitle("Fecundity at each age with variability")
+```
+
+
+```{r}
 nsim<-100000
 lambdaSims<-NULL
 for(sim in 1:nsim) {
@@ -340,7 +372,8 @@ summary(lambdaSims)
 mean(lambdaSims,na.rm=TRUE) 
 confidenceInterval<-quantile(lambdaSims,c(0.025,0.975))
 round(confidenceInterval,3)
-ggplot(data.frame(lambda<-lambdaSims),aes(x=lambda,y=after_stat(density)))+
+ggplot(data.frame(lambda<-lambdaSims),
+       aes(x=lambda,y=after_stat(density)))+
   geom_histogram(fill="darkgrey",color="black",bins=50)+
   geom_density(color="red")
 ```

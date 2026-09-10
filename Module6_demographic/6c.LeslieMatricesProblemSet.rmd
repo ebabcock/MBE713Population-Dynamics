@@ -50,3 +50,4 @@ contributes the most to $\lambda$? Is reproduction or survival more
 important overall?
 
 
+**Q8.** Assume that the both lx and mx have CVs of 0.1.  Estimate a 95% confidence interval of lambda for the low density case. 
