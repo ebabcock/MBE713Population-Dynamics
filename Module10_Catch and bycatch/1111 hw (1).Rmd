@@ -1,0 +1,107 @@
+---
+title: '1111'
+author: "Sierra Hamlin"
+date: "2025-11-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+library(mgcv)
+theme_set(theme_bw())
+```
+
+1.Use the same SWO data we used in the last assignment. Fit a Tweedie model to the CPUE (SWO/set) and used dredge to find the best set of predictor variables. Look at the DHARMa residuals. Does it fit well?  It was a good fit but not a grat fit.
+```{r}
+obsdat <- read.csv("obsdatSwo.csv")%>%
+ mutate(Year=factor(Year),
+        fleet=factor(fleet),
+        season=factor(season),
+        area=factor(area))
+
+ggplot(obsdat,
+       aes(x=Year,y=SWO))+
+  stat_summary(fun.data="mean_se")
+ggplot(obsdat,aes(x=SWO))+
+  geom_histogram(binwidth=1)
+
+TweedieFit<-glmmTMB(SWO/sets~(Year+area+season)^2,
+                  data=obsdat,
+                  family="tweedie",
+                na.action = "na.fail")
+#Must set na.action to "na.fail"
+
+TweedieDredge<-dredge(TweedieFit,rank = "BIC")
+head(TweedieDredge)
+TweedieBest<-get.models(TweedieDredge,subset=1)[[1]]
+summary(TweedieBest)
+plot(simulateResiduals(TweedieBest))
+```
+
+
+
+2. Plot the predicted mean CPUE per year plus and minus SE for the negative binomial 2 fit from the last assignment and the Tweedie you just fit. How similar are they? The NB2 model is slightly less well fit.
+```{r}
+NB2fit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+summary(NB2fit)
+plot(simulateResiduals(NB2fit))
+```
+
+3. The swordfish data is not appropriate for delta-lognormal, because nearly all the trips caught at least one swordfish. For this problem, we will use a new BUM data set called BUM2.csv, which is simulated data for a different fleet only in the South Atlantic, and with possible predictor variables hbf(hooks between floats, numeric), Year and season. Fit the binomial model, look at the residuals and use dredge to find the best model. Do the same for the lognormal on the positive observations. Make the combined index and plot it plus and minus standard error. What is the trend over time? There is a decrease with time.
+```{r}
+lnorm.mean=function(x1,x1e) {
+  exp(x1+0.5*x1e^2)
+}
+
+lnorm.se=function(x1,x1e) {
+  ((exp(x1e^2)-1)*exp(2*x1+x1e^2))^0.5
+}
+lo.se=function(x1,x1e,x2,x2e) {
+  if(length(x1[!is.na(x1) &!is.na(x2)])>1 & length(unique(x1))>1 & length(unique(x2))>1 )
+   cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
+  (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
+}
+
+obsdat$present<-ifelse(obsdat$BUM>0,1,0)
+BinomFit<-glmmTMB(present~Year+area*season,
+                  data=obsdat,
+                  family="binomial",
+                na.action = "na.fail")
+BinDredge<-dredge(BinomFit,rank = "BIC")
+head(BinDredge)
+BinBest<-get.models(BinDredge,subset=1)[[1]]
+summary(BinBest)
+plot(simulateResiduals(BinBest))
+
+bind_rows(list(BinomFit=filter(newdata,area=="N"),
+          Tweedie=newdata2,
+          DeltaLN=newdata3),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

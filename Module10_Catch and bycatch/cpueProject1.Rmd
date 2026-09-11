@@ -1,0 +1,58 @@
+---
+title: "CPUE project 1"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+theme_set(theme_bw())
+```
+
+For this question, we will use the obsdat dataset, but with the swordfish column (SWO) rather than BUM.  
+
+1.Fit a Poisson model with your choice of predictor variables, along with the sets offset, and look at the DHARMa residuals. Does it fit well?
+
+```{r}
+obsdat<-read_csv("obsdatSwo.csv")%>%
+  mutate(Year=factor(Year),
+         season=factor(season),
+         area=factor(area))
+Poisson1<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="poisson")
+plot(simulateResiduals(Poisson1))
+```
+
+Looks very bad.
+
+2. Fit a negative binomial 2 model  and look at the DHARMa residuals. Does it fit well?  
+
+
+```{r}
+NB2<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+plot(simulateResiduals(NB2))
+```
+Looks much better. 
+
+3. Use the dredge function to find the BIC best model starting the model with all two way interactions. Which model is best?
+
+
+```{r}
+NB2<-glmmTMB(SWO~(Year+area+season)^2+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2",
+             na.action="na.fail")
+NB2dredge<-dredge(NB2,rank="BIC")
+NB2dredge
+```
+
+Best model has area only. 
+
+

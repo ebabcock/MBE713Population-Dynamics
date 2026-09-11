@@ -1,0 +1,71 @@
+---
+title: '1106'
+author: "Sierra Hamlin"
+date: "2025-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this question, we will use the obsdat dataset, but with the swordfish column (SWO) rather than BUM.  
+```{r}
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+library(mgcv)
+theme_set(theme_bw())
+```
+
+
+1.Fit a Poisson model with your choice of predictor variables, along with the sets offset, and look at the DHARMa residuals. Does it fit well? NO, it does not fit well.
+```{r}
+obsdat <- read.csv("obsdatSwo.csv")%>%
+ mutate(Year=factor(Year),
+        fleet=factor(fleet),
+        season=factor(season),
+        area=factor(area))
+ggplot(obsdat,
+       aes(x=Year,y=SWO))+
+  stat_summary(fun.data="mean_se")
+ggplot(obsdat,aes(x=SWO))+
+  geom_histogram(binwidth=1)
+
+poissonFit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="poisson")
+summary(poissonFit)
+plot(simulateResiduals(poissonFit))
+```
+
+2. Fit a negative binomial model and look at the DHARMa residuals. Does it fit well?  Better than poisson but not great.
+```{r}
+NB2fit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+summary(NB2fit)
+plot(simulateResiduals(NB2fit))
+```
+
+
+3. Use the dredge function to find the BIC best model starting the model with all two way interactions. Which model is best? Model 66 is the best fit.
+```{r}
+NB2fit<-glmmTMB(SWO~(Year+area+season)^2+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2",
+                na.action = "na.fail")
+
+NB2dredge<-dredge(NB2fit,rank = "BIC")
+head(NB2dredge)
+NB2best<-get.models(NB2dredge,subset=1)[[1]]
+summary(NB2best)
+```
+
+
+
+
+
+
+

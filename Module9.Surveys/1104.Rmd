@@ -1,0 +1,98 @@
+---
+title: '1104'
+author: "Sierra Hamlin"
+date: "2025-10-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+1. Using the data from the shark BLL survey, calculate the mean abundance in each year SPHYRNA MOKARRAN (great hammerhead), assuming a simple random sample.
+
+```{r}
+station<-read.csv("Station_Data.csv") %>%
+  mutate(date=as.Date(DATE),
+         year=year(date))%>%
+  filter(year>2000)
+
+catch<-read.csv("Catch_Data.csv")
+head(catch)
+
+catchSum<-catch %>%
+  mutate(Species=paste(GENUS,SPECIES)) %>%
+  filter(Species %in% c("SPHYRNA MOKARRAN"))%>%
+  group_by(SEAMAPSTATION,CID,Species) %>%
+  summarize(count=n())%>%
+  pivot_wider(names_from=Species,values_from=count,values_fill = 0)
+head(catchSum)
+
+StationData<-left_join(station,catchSum,by=c("SEAMAPSTATION","CID"))
+StationData<-StationData %>% 
+  mutate(hammerhead=replace_na(`SPHYRNA MOKARRAN`,0))
+
+ggplot(StationData,aes(x=factor(year),y=hammerhead))+
+  geom_boxplot()
+yearSum<-StationData %>% 
+  group_by(year) %>%
+  summarize(meanAS=mean(hammerhead),
+            seAS=sd(hammerhead)/sqrt(n()))  
+ggplot(yearSum,aes(x=year,y=meanAS,ymin=meanAS-2*seAS,ymax=meanAS+2*seAS))+
+  geom_point()+
+  geom_errorbar(width=0.1)+
+  ylab("mean abundance of hammerheads")
+
+```
+
+
+2. Using the impala data with distance sampling, use AIC to find the best functional form to model detection probability as a function of distance. Plot the detection functions. Does the AIC-best also look like the best fit?  What is the total number in the sampled area and the density in the best model? 
+This code will format the data correctly. 
+They all seem to fit similarly when tested. However the lowest AIC is the best fit, thus impala.unif.cos is the best fit. The area is 186.2792 and the density is 73.
+
+```{r}
+library(Distance)
+
+impala<-read.csv("impala.csv") %>%
+  rename(distance=x)%>%  #column must be called distance (in meters)
+  mutate(Effort=60000,
+         Region.Label="combined",
+         Sample.Label="combined")  #total length of transects in meters
+
+head(impala)
+
+conversion.factor<-convert_units("meter", "kilometer", "hectare")
+impala.hn <- ds(data=impala, 
+              key="hn", 
+              adjustment=NULL, 
+              convert_units=conversion.factor)
+summary(impala.hn)
+cutpoints <- c(0,5,10,15,20,30,40,50,65,80,100)
+plot(impala.hn, breaks=cutpoints, main="Half normal model, impala line transects")
+
+impala.unif.cos <- ds(impala, key="unif", adjustment="cos", convert_units=conversion.factor)
+plot(impala.unif.cos, breaks=cutpoints, main="Uniform cosine model, impala line transects")
+impala.hr.poly <- ds(impala, key="hr", adjustment="poly", convert_units=conversion.factor)
+plot(impala.unif.cos, breaks=cutpoints, main="Hazard polynomial, impala line transects")
+AIC(impala.hn, impala.hr.poly, impala.unif.cos)
+
+gof_ds(impala.hr.poly)
+gof_ds(impala.hn)
+gof_ds(impala.unif.cos)
+
+summary(impala.unif.cos)$dht$individuals$N
+summary(impala.unif.cos)$dht$individuals$D
+```
+
+
+
+
+
+
+
+
+
+
+

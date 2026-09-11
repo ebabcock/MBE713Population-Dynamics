@@ -1,0 +1,255 @@
+
+```{r,message=FALSE}
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+library(mgcv)
+theme_set(theme_bw())
+
+```
+
+```{r}
+obsdat<-read.csv("obsdatSwo.csv") %>%
+ mutate(Year=factor(Year),
+        fleet=factor(fleet),
+        season=factor(season),
+        area=factor(area))
+ggplot(obsdat,
+       aes(x=Year,y=SWO))+
+  stat_summary(fun.data="mean_se")
+ggplot(obsdat,aes(x=SWO))+
+  geom_histogram(binwidth=1)
+```
+
+
+Poisson vs. nb 1 or 2
+
+```{r}
+df<-expand.grid(draw=1:1000,model=c("Poisson","Negative Binomial")) %>%
+  rowwise()%>%
+  mutate(Draw=ifelse(model=="Poisson",rpois(1,10),rnbinom(1,mu=10,size=0.5)))
+summary(df)
+df%>% group_by(model)%>%
+  summarize(mean=mean(Draw),
+            var=var(Draw))
+ggplot(df,aes(x=Draw,fill=model))+
+  geom_histogram(position="dodge")
+```
+
+Run a poisson model and look at the residuals
+
+```{r}
+poissonFit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="poisson")
+summary(poissonFit)
+plot(simulateResiduals(poissonFit))
+```
+
+1. Poisson does not fit well.
+
+```{r}
+NB2fit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+summary(NB2fit)
+plot(simulateResiduals(NB2fit))
+
+```
+
+
+```{r}
+NB1fit<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom1")
+plot(simulateResiduals(NB1fit))
+
+```
+
+None are great, but NB2 fits best.
+
+```{r,message=FALSE}
+NB2fit<-glmmTMB(SWO~(Year+area+season)^2+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2",
+                na.action = "na.fail")
+#Must set na.action to "na.fail"
+
+NB2dredge<-dredge(NB2fit,rank = "BIC")
+head(NB2dredge)
+NB2best<-get.models(NB2dredge,subset=1)[[1]]
+#summary(NB2best)
+```
+Ranked by BIC, the best model includes only the area interaction (weight: .99).
+
+Assignment 2:
+
+1.
+```{r}
+obsdat$BUM=NULL
+newdata<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor(levels(obsdat$area)),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(NB2best,
+              newdata = newdata,
+              se.fit = TRUE,
+              type="response")
+newdata$fit<-temp$fit
+newdata$se<-temp$se.fit
+ggplot(newdata,aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,ymax=fit+se,color=area))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)",
+       main="Negative binomial fit")
+  
+```
+Something goes wrong here. I tried removing the BUM column, rearranging the expand.grid arguments, can't figure it out.
+
+Tweedie
+
+```{r}
+
+TweedieFit<-glmmTMB(SWO/sets~(Year+area+season)^2,
+                  data=obsdat,
+                  family="tweedie",
+                na.action = "na.fail")
+#Must set na.action to "na.fail"
+
+TweedieDredge<-dredge(TweedieFit,rank = "BIC")
+head(TweedieDredge)
+TweedieBest<-get.models(TweedieDredge,subset=1)[[1]]
+summary(TweedieBest)
+plot(simulateResiduals(TweedieBest))
+```
+
+Residual plot is slightly different, but I think looks ok.
+
+2.
+```{r}
+newdata2<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor("N"),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(TweedieBest,
+              newdata = newdata2,
+              se.fit = TRUE,
+              type="response")
+newdata2$fit<-temp$fit
+newdata2$se<-temp$se.fit
+bind_rows(list(NB2=filter(newdata,area=="N"),
+          Tweedie=newdata2),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+
+```
+
+definitely not right
+
+3.
+```{r}
+lnorm.mean=function(x1,x1e) {
+  exp(x1+0.5*x1e^2)
+}
+
+lnorm.se=function(x1,x1e) {
+  ((exp(x1e^2)-1)*exp(2*x1+x1e^2))^0.5
+}
+lo.se=function(x1,x1e,x2,x2e) {
+  if(length(x1[!is.na(x1) &!is.na(x2)])>1 & length(unique(x1))>1 & length(unique(x2))>1 )
+   cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
+  (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
+}
+
+```
+
+```{r}
+obsdat<-read.csv("BUM2.csv") %>%
+ mutate(Year=factor(Year),
+        season=factor(season))
+ggplot(obsdat,
+       aes(x=Year,y=BUM))+
+  stat_summary(fun.data="mean_se")
+ggplot(obsdat,aes(x=BUM))+
+  geom_histogram(binwidth=1)
+```
+
+Part 1. binomial
+
+
+```{r}
+obsdat$present<-ifelse(obsdat$BUM>0,1,0)
+BinomFit<-glmmTMB(present~Year*season,
+                  data=obsdat,
+                  family="binomial",
+                na.action = "na.fail")
+BinDredge<-dredge(BinomFit,rank = "BIC")
+head(BinDredge)
+BinBest<-get.models(BinDredge,subset=1)[[1]]
+summary(BinBest)
+plot(simulateResiduals(BinBest))
+
+```
+
+Part 2. log(CPUE) positive only
+
+```{r}
+posdat<-filter(obsdat,present==1)%>%
+  mutate(cpue=BUM/sets)
+cpueFit<-glmmTMB(log(cpue)~Year*season,
+                  data=posdat,
+                  family="gaussian",
+                na.action = "na.fail")
+cpueDredge<-dredge(cpueFit,rank = "BIC")
+head(cpueDredge)
+cpueBest<-get.models(cpueDredge,subset=1)[[1]]
+summary(cpueBest)
+plot(simulateResiduals(cpueBest))
+
+```
+
+Calculate index
+
+```{r}
+newdata3<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(BinBest,
+              newdata = newdata3,
+              se.fit = TRUE,
+              type="response")
+newdata3$binomial<-temp$fit
+newdata3$binomial.se<-temp$se.fit
+temp<-predict(cpueBest,
+              newdata = newdata3,
+              se.fit = TRUE) #response is on log scale
+#lognormal conversion functions to get mean if positive
+newdata3$pos.cpue<-lnorm.mean(temp$fit,temp$se.fit)
+newdata3$pos.cpue.se<-lnorm.se(temp$fit,temp$se.fit)
+#index
+newdata3<-newdata3 %>%
+  mutate(fit=binomial*pos.cpue,
+         se=lo.se(binomial,binomial.se,pos.cpue,pos.cpue.se))
+```
+
+Compare fits
+
+```{r}
+bind_rows(list(NB2=filter(newdata,area=="N"),
+          Tweedie=newdata2,
+          DeltaLN=newdata3),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+```
+
+The trend over time, based on the delta-lognormal of the BUM2 data at least, shows a decrease in CPUE.

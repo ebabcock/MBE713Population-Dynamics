@@ -1,0 +1,118 @@
+
+```{r,message=FALSE}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+### Example 2. Shark bottom longline data
+
+https://www.fisheries.noaa.gov/inport/item/29395
+https://catalog.data.gov/dataset/shark-and-red-snapper-bottom-longline-survey
+
+ Strata: 9 – 55 m, 55 – 183 m, and 183 – 366 m, but we will ignore this for now
+
+```{r}
+station<-read.csv("Station_Data.csv") %>%
+  mutate(date=as.Date(DATE),
+         year=year(date))%>%
+  filter(year>2000)
+
+catch<-read.csv("Catch_Data.csv")
+head(catch)
+
+ 
+```
+
+Make a new column for species and count catch by species
+
+```{r}
+catchSum<-catch %>%
+  mutate(Species=paste(GENUS,SPECIES)) %>%
+  filter(Species %in% c("SPHYRNA MOKARRAN"))%>%
+  group_by(SEAMAPSTATION,CID,Species) %>%
+  dplyr::summarize(count=n())%>%
+  pivot_wider(names_from=Species,values_from=count,values_fill = 0)
+head(catchSum)
+StationData<-left_join(station,catchSum,by=c("SEAMAPSTATION","CID"))
+StationData<-StationData %>% 
+  mutate(greatHammer=replace_na(`SPHYRNA MOKARRAN`,0))
+```
+
+Get annual mean numbers
+
+```{r}
+ggplot(StationData,aes(x=factor(year),y=greatHammer))+
+  geom_boxplot()
+yearSum<-StationData %>% 
+  group_by(year) %>%
+  dplyr::summarize(meanAS=mean(greatHammer),
+            seAS=sd(greatHammer)/sqrt(n()))  
+ggplot(yearSum,aes(x=year,y=meanAS,ymin=meanAS-2*seAS,ymax=meanAS+2*seAS))+
+  geom_point()+
+  geom_errorbar(width=0.1)+
+  ylab("Mean count of Great Hammerheads")
+```
+
+
+### Distance sampling
+
+https://distancesampling.org/Distance/articles/lines-distill.html
+
+https://distancesampling.org/Distance/articles/web-only/points/pointtransects-distill.html
+
+```{r,message=FALSE}
+library(Distance)
+```
+
+Line transect with impalas
+
+```{r}
+impala<-read.csv("impala.csv") %>%
+  dplyr::rename(distance=x)%>%  #column must be called distance (in meters)
+  mutate(Effort=60000,
+         Region.Label="combined",
+         Sample.Label="combined")  #total length of transects in meters
+
+data(impala)
+ggplot(impala,aes(x=distance))+
+  geom_histogram(binwidth=5)+
+  ggtitle("impala distance from transect line")
+
+ggplot(impala,aes(x=as.numeric(distance)))+
+  geom_bar()+
+  labs(x="Transect number",
+       y="Number of impalas observed",
+       title="Counts of impalas by transect")
+head(impala)
+```
+Area is the total hectares in the study area. Effort is the length (km) of the transect. Distance is in m. Convert_units function gives units of distance, transect length and area. 
+
+Best detection function found with ds()
+
+```{r}
+conversion.factor<-convert_units("meter", "kilometer", "hectare")
+impala.hn <- ds(data=impala, 
+              key="hn", 
+              adjustment=NULL, 
+              convert_units=conversion.factor)
+summary(impala.hn)
+cutpoints <- c(0,25,50,75,100,150,200,250,300,350)
+plot(impala.hn, breaks=cutpoints, main="Half normal model, impala line transects")
+
+```
+Try other functions
+
+```{r}
+impala.unif.cos <- ds(impala, key="unif", adjustment="cos", convert_units=conversion.factor)
+plot(impala.unif.cos, breaks=cutpoints, main="Uniform cosine model, impala line transects")
+impala.hr.poly <- ds(impala, key="hr", adjustment="poly", convert_units=conversion.factor)
+plot(impala.hr.poly, breaks=cutpoints, main="Hazard polynomial, impala line transects")
+AIC(impala.hn, impala.hr.poly, impala.unif.cos)
+
+```
+
+The uniform cosine model fits best.
+
+```{r}
+gof_ds(impala.unif.cos)
+```

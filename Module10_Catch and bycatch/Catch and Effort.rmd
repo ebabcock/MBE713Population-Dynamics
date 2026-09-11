@@ -1,0 +1,361 @@
+---
+title: "Catch, effort and CPUE"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+library(mgcv)
+theme_set(theme_bw())
+
+```
+
+```{r}
+obsdat<-read.csv("obsdat.csv") %>%
+ mutate(Year=factor(Year),
+        fleet=factor(fleet),
+        season=factor(season),
+        area=factor(area))
+summary(obsdat)
+ggplot(obsdat,
+       aes(x=Year,y=BUM))+
+  stat_summary(fun.data="mean_se")
+ggplot(obsdat,aes(x=BUM))+
+  geom_histogram(binwidth=1)
+```
+
+
+Poisson vs. nb 1 or 2
+
+```{r}
+df<-expand.grid(draw=1:1000,model=c("Poisson","Negative Binomial")) %>%
+  rowwise()%>%
+  mutate(Draw=ifelse(model=="Poisson",rpois(1,10),rnbinom(1,mu=10,size=0.5)))
+summary(df)
+df%>% group_by(model)%>%
+  summarize(mean=mean(Draw),
+            var=var(Draw))
+ggplot(df,aes(x=Draw,fill=model))+
+  geom_histogram(position="dodge")
+```
+
+
+Run a poisson model and look at the residuals
+
+```{r}
+poissonFit<-glmmTMB(BUM~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="poisson")
+summary(poissonFit)
+plot(simulateResiduals(poissonFit))
+```
+
+Poisson doesn't work, try NB2
+
+```{r}
+NB2fit<-glmmTMB(BUM~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+summary(NB2fit)
+plot(simulateResiduals(NB2fit))
+
+```
+
+Looks fine.
+
+
+```{r}
+NB1fit<-glmmTMB(BUM~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom1")
+plot(simulateResiduals(NB1fit))
+
+```
+
+stick with NB2 and find best predictors using dredge
+
+```{r,message=FALSE}
+NB2fit<-glmmTMB(BUM~(Year+area+season)^2+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2",
+                na.action = "na.fail")
+#Must set na.action to "na.fail"
+#(Year+area+season)^2
+#Year+area+season+Year:area+Year:season+area:season
+
+NB2dredge<-dredge(NB2fit,rank = "BIC")
+NB2dredge2<-dredge(NB2fit)
+head(NB2dredge2)
+NB2best<-get.models(NB2dredge,subset=1)[[1]]
+#summary(NB2best)
+```
+Best model includes all main effects, plus interactions (but not with year)
+
+Prediction, for N and S separately
+
+```{r}
+newdata<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor(levels(obsdat$area)),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(NB2best,
+              newdata = newdata,
+              se.fit = TRUE,
+              type="response")
+newdata$fit<-temp$fit
+newdata$se<-temp$se.fit
+ggplot(newdata,aes(x=as.numeric(as.character(Year)),
+                   y=fit,ymin=fit-se,ymax=fit+se,color=area))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)",
+       main="Negative binomial fit")
+  
+```
+
+
+Tweedie
+
+```{r}
+
+TweedieFit<-glmmTMB(BUM/sets~(Year+area+season)^2,
+                  data=obsdat,
+                  family="tweedie",
+                na.action = "na.fail")
+#Must set na.action to "na.fail"
+
+TweedieDredge<-dredge(TweedieFit,rank = "BIC")
+head(TweedieDredge)
+TweedieBest<-get.models(TweedieDredge,subset=1)[[1]]
+summary(TweedieBest)
+plot(simulateResiduals(TweedieBest))
+```
+
+Residuals look fine. Prediction
+
+```{r}
+newdata2<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor("N"),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(TweedieBest,
+              newdata = newdata2,
+              se.fit = TRUE,
+              type="response")
+newdata2$fit<-temp$fit
+newdata2$se<-temp$se.fit
+bind_rows(list(NB2=filter(newdata,area=="N"),
+          Tweedie=newdata2),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+
+```
+Delta-lognormal model
+
+Will need the lognormal conversion functions. These calculate the mean and standard error of a lognormal function from the mean and standard error of the normally distributed variable on the log scale. Also need the function for Lo et al. to calculate the standard error of the index using the delta method. 
+
+```{r}
+lnorm.mean=function(x1,x1e) {
+  exp(x1+0.5*x1e^2)
+}
+
+lnorm.se=function(x1,x1e) {
+  ((exp(x1e^2)-1)*exp(2*x1+x1e^2))^0.5
+}
+lo.se=function(x1,x1e,x2,x2e) {
+  if(length(x1[!is.na(x1) &!is.na(x2)])>1 & length(unique(x1))>1 & length(unique(x2))>1 )
+   cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
+  (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
+}
+
+```
+
+
+Part 1. binomial
+
+
+```{r}
+obsdat$present<-ifelse(obsdat$BUM>0,1,0)
+BinomFit<-glmmTMB(present~Year+area*season,
+                  data=obsdat,
+                  family="binomial",
+                na.action = "na.fail")
+BinDredge<-dredge(BinomFit,rank = "BIC")
+head(BinDredge)
+BinBest<-get.models(BinDredge,subset=1)[[1]]
+summary(BinBest)
+plot(simulateResiduals(BinBest))
+
+```
+
+Part 2. log(CPUE) positive only
+
+```{r}
+posdat<-filter(obsdat,present==1)%>%
+  mutate(cpue=BUM/sets)
+cpueFit<-glmmTMB(log(cpue)~Year+area*season,
+                  data=posdat,
+                  family="gaussian",
+                na.action = "na.fail")
+cpueDredge<-dredge(cpueFit,rank = "BIC")
+head(cpueDredge)
+cpueBest<-get.models(cpueDredge,subset=1)[[1]]
+summary(cpueBest)
+plot(simulateResiduals(cpueBest))
+
+```
+
+Calculate index
+
+```{r}
+newdata3<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor("N"),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(BinBest,
+              newdata = newdata3,
+              se.fit = TRUE,
+              type="response")
+newdata3$binomial<-temp$fit
+newdata3$binomial.se<-temp$se.fit
+temp<-predict(cpueBest,
+              newdata = newdata3,
+              se.fit = TRUE) #response is on log scale
+#lognormal conversion functions to get mean if positive
+newdata3$pos.cpue<-lnorm.mean(temp$fit,temp$se.fit)
+newdata3$pos.cpue.se<-lnorm.se(temp$fit,temp$se.fit)
+#index
+newdata3<-newdata3 %>%
+  mutate(fit=binomial*pos.cpue,
+         se=lo.se(binomial,binomial.se,pos.cpue,pos.cpue.se))
+head(newdata3)
+```
+
+Compare fits
+
+```{r}
+bind_rows(list(NB2=filter(newdata,area=="N"),
+          Tweedie=newdata2,
+          DeltaLN=newdata3),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+```
+Lognormal is a little flatter. 
+
+Random effect
+
+```{r}
+
+NB2Random<-glmmTMB(BUM~Year+area+season+(1|area:Year)+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+
+summary(NB2Random)
+```
+
+
+### Gam
+
+GAMs can be fit with the mgcv library
+
+```{r}
+NB2Gam<-gam(BUM~Year+season*area+te(lon,lat),data=obsdat,
+            family="nb") #Negative binomial 2
+gam.check(NB2Gam)
+summary(NB2Gam)
+plot(NB2Gam)
+
+```
+
+### Bycatch estimation
+
+BycatchEstimator tool
+
+https://ebabcock.github.io/BycatchEstimator/
+
+```{r}
+library(BycatchEstimator)
+library(MuMIn)
+setupObj<-bycatchSetup(
+  obsdat = droplevels(LLSIM_BUM_Example_observer[LLSIM_BUM_Example_observer$Year>2010 &LLSIM_BUM_Example_observer$fleet==2,]),
+  logdat = droplevels(LLSIM_BUM_Example_logbook[LLSIM_BUM_Example_logbook$Year>2010 & LLSIM_BUM_Example_logbook$fleet==2,]),
+  yearVar = "Year",
+  obsEffort = "hooks",
+  logEffort = "hooks",
+  obsCatch = c("SWO","BUM")[2], # selecting Blue marlin catch
+  catchUnit = "number",
+  catchType = "catch",
+  logNum = NA,
+  sampleUnit = "trips",
+  factorVariables = c("Year","area","season"),
+  numericVariables = NA,
+  EstimateBycatch = TRUE,
+  baseDir = getwd(),
+  runName = "LLSIMBUMtripExample",
+  runDescription = "LLSIMBUM by trip",
+  common = c("Swordfish","Blue marlin")[2], # selecting Blue marlin
+  sp = c("Xiphias gladius","Makaira nigricans")[2], # selecting Blue marlin
+  reportType = "html"
+)
+designObj <- bycatchDesign(
+  setupObj = setupObj,
+  designScenario = "noPool",
+  designMethods = c("Ratio", "Delta"),
+  designVars = c("Year","area","season"),
+  designPooling = FALSE,
+  poolTypes=c("adjacent","all","none"),
+  pooledVar=c(NA,NA),
+  adjacentNum=c(1,NA),
+  minStrataUnit = 1,
+  reportType="html"
+)
+bycatchFit(
+  setupObj = setupObj,
+  modelScenario = "s1",
+  complexModel = formula(y~Year+area),
+  simpleModel = formula(y~Year),
+  indexModel = formula(y~Year),
+  modelTry = c("TMBnbinom1","TMBtweedie"),
+  randomEffects = NULL,
+  randomEffects2 = NULL,
+  selectCriteria = "BIC",
+  DoCrossValidation = TRUE,
+  CIval = 0.05,
+  VarCalc = "Simulate",
+  useParallel = TRUE,
+  nSims = 100,
+  plotValidation = FALSE,
+  trueVals = NULL,
+  trueCols = NULL,
+  reportType = "html"
+)
+allResults<-loadOutputs(baseDir = getwd(),
+                      runName= "LLSIMBUMtripExample",
+                      runDate =  Sys.Date(),
+                      designScenarios = "noPool",
+                      modelScenarios = "s1"
+)
+#Plot all together
+ggplot(allResults$allYearEstimates,aes(x=Year,y=Total,
+                                       ymin=TotalLCI,ymax=TotalUCI,
+                      fill=Source,color=Source))+
+  geom_line()+
+  geom_ribbon(alpha=0.4)+
+  theme_bw()
+```
+
+

@@ -1,0 +1,42 @@
+---
+title: "Catch, effort and CPUE"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+library(tweedie)
+theme_set(theme_bw())
+update_theme(palette.colour.discrete = scales::pal_viridis())
+#Tweedie=poisson
+df<-expand.grid(mu=c(1,10,100),sim=1:10000,p=1,
+                phi=1,model=c("Poisson","Tweedie")) %>%
+  rowwise()%>%
+  mutate(y=ifelse(model=="Tweedie",rtweedie(1,mu=mu,phi=phi,power=p),
+                  rpois(1,mu)))
+
+ggplot(df,aes(x=y,fill=model))+
+  geom_bar(position = position_dodge())+
+  facet_grid(cols=vars(mu),scales="free")+
+  ggtitle("Tweedie=Poisson")
+
+#Tweedie variance
+df<-expand.grid(mu=seq(1:10),p=c(1,1.5,2),
+                phi=c(0.5,1,2),model=c("Tweedie")) %>%
+  mutate(var=phi*mu^p)
+ggplot(df,aes(x=mu,y=var,color=factor(p),linetype=factor(phi)))+
+  geom_line()+
+  ggtitle("Variance with mean, p, and phi")
+
+#Tweedie with zeros
+df<-expand.grid(mu=c(1,10),sim=1:10000,p=1.15,
+                phi=c(1,2),model=c("Tweedie")) %>%
+  rowwise()%>%
+  mutate(y=rtweedie(1,mu=mu,phi=phi,power=p))
+ggplot(df,aes(x=y,fill=factor(y==0)))+
+  geom_histogram()+
+  facet_grid(cols=vars(mu),rows=vars(phi),scales="free")+
+  ggtitle("Tweedie with zero inflation")
+```

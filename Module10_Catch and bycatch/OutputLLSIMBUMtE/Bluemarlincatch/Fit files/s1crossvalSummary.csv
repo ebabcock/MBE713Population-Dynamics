@@ -1,0 +1,3 @@
+"","model","formula","RMSE","ME"
+"1","TMBnbinom1","area + 1 + Year + offset(log(Effort))",0.0676940508510895,-0.000783083551126086
+"2","TMBtweedie","area + 1 + Year",0.0687944884663837,8.40301169275484e-06

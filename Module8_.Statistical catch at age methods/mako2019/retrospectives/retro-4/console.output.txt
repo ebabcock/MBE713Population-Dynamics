@@ -1,0 +1,7 @@
+###
+console output
+2025-09-28 12:01:17.303548
+###
+ 
+ reading from starter.ss
+Error trying to open data input file DATA.dat

@@ -1,0 +1,90 @@
+1  reportdetail 0=minimal for data-limited, 1=all, 2=no growth, 3=custom
+1 Y DEFINITIONS report:1
+2 Y LIKELIHOOD report:2
+3 Y Input_Variance_Adjustment report:3
+4 Y Parm_devs_detail report:4
+5 Y PARAMETERS report:5
+6 Y DERIVED_QUANTITIES report:6
+7 Y MGparm_By_Year_after_adjustments report:7
+8 Y selparm(Size)_By_Year_after_adjustments report:8
+9 Y selparm(Age)_By_Year_after_adjustments report:9
+10 Y RECRUITMENT_DIST report:10
+11 Y MORPH_INDEXING report:11
+12 Y SIZEFREQ_TRANSLATION report:12
+13 Y MOVEMENT report:13
+14 Y EXPLOITATION report:14
+15 Y CATCH report:15
+16 Y TIME_SERIES report:16
+17 Y SPR_SERIES report:17
+18 Y Kobe_Plot report:18
+19 Y SPAWN_RECRUIT report:19
+20 Y SPAWN_RECR_CURVE report:20
+21 Y INDEX_1 report:21 summary
+22 Y INDEX_2 report:22 annual
+23 Y INDEX_3 report:23 Qparms
+24 Y DISCARD_SPECIFICATION report:24
+25 Y DISCARD_OUTPUT report:25
+26 Y MEAN_BODY_WT_OUTPUT report:26
+27 Y FIT_LEN_COMPS report:27
+28 Y FIT_AGE_COMPS report:28
+29 Y FIT_SIZE_COMPS report:29
+30 Y OVERALL_COMPS report:30
+31 Y LEN_SELEX report:31
+32 Y AGE_SELEX report:32
+33 Y ENVIRONMENTAL_DATA report:33
+34 Y TAG_Recapture report:34
+35 Y NUMBERS_AT_AGE report:35
+36 Y BIOMASS_AT_AGE report:36
+37 Y NUMBERS_AT_LENGTH report:37
+38 Y BIOMASS_AT_LENGTH report:38
+39 Y F_AT_AGE report:39
+40 Y CATCH_AT_AGE report:40
+41 Y DISCARD_AT_AGE report:41
+42 Y BIOLOGY report:42
+43 Y Natural_Mortality report:43
+44 Y AGE_SPECIFIC_K report:44
+45 Y Growth_Parameters report:45
+46 Y Seas_Effects report:46
+47 Y Biology_at_age_in_endyr report:47
+48 Y MEAN_BODY_WT(Begin) report:48
+49 Y MEAN_SIZE_TIMESERIES report:49
+50 Y AGE_LENGTH_KEY report:50
+51 Y AGE_AGE_KEY report:51
+52 Y COMPOSITION_DATABASE report:52
+53 Y SELEX_database report:53
+54 Y SPR/YPR_Profile report:54
+55 N GLOBAL_MSY report:55
+56 Y SS_summary.sso report:56
+57 Y rebuilder.sso report:57
+58 Y SIStable.sso report:58
+59 Y Dynamic_Bzero report:59
+60 Y wtatage.ss_new report:60
+61 Y ANNUAL_TIME_SERIES report:61
+0  docheckup
+0  Do_ParmTrace
+0  Do_CumReport
+0  Do_all_priors
+1  SoftBound
+0  N_nudata
+0  Turn_off_phase
+10  MCeval burn_intvl
+2  MCeval thin_intvl
+0  jitter fraction for initial parm values
+-1  STD_Yr_min
+-2  STD_Yr_max (-1 for endyr; -2 for YrMax)
+0  N extra STD years to read
+1e-05  final_conv
+-3  retro_yr
+1  Smry_Age
+1  depletion_basis as read; this is also known as Bratio and is a std quantity; has multi-yr and log(ratio) options
+Parse into: depletion_log(ratio): 0 depletion_multi-yr: 0 depletion_basis: 1
+1  depletion_level
+4  SPR_reporting
+3  F_reporting quantity, e.g. 3=sum(apical Fs)
+0  F_std basis as read
+Parse into: F_std_log(ratio): 0 F_std_multi: 0 F_std_basis: 0
+For Kobe plot, set depletion_basis=2; depletion_level=1.0; F_reporting=your choice; F_std_basis=2
+SS read 999 from starter.ss, so will read files in 3.24 format
+
+  finish reading starter.ss
+

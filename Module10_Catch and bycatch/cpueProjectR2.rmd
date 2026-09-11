@@ -1,0 +1,174 @@
+---
+title: "CPUE project 2"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(glmmTMB)
+library(MuMIn)
+library(DHARMa)
+theme_set(theme_bw())
+```
+
+
+1.Use the same SWO data we used in the last assignment. Fit a Tweedie model to the CPUE (SWO/set) and used dredge to find the best set of predictor variables. Look at the DHARMa residuals. Does it fit well?  
+
+```{r,message=FALSE}
+obsdat<-read_csv("obsdatSwo.csv")%>%
+  mutate(Year=factor(Year),
+         season=factor(season),
+         area=factor(area),
+         cpue=SWO/sets)
+summary(obsdat)
+Tweedie1<-glmmTMB(cpue~Year+area+season,
+                  data=obsdat,
+                  family="tweedie",
+                  na.action="na.fail")
+TweedieDredge<-dredge(Tweedie1,
+                      rank="BIC")           
+head(TweedieDredge)
+TweedieBest<-get.models(TweedieDredge,subset=4)[[1]]  #Select best with a year effect
+plot(simulateResiduals(TweedieBest))
+summary(TweedieBest)
+```
+The best model did not include the year effect.  Because year is the most important variable in the analysis, we can decide to use the best model with a year effect, which is the 4th one. 
+
+
+2. Plot the predicted mean CPUE per year plus and minus SE for the negative binomial 2 fit from the last assignment and the Tweedie you just fit. How similar are they? 
+
+```{r}
+NB2<-glmmTMB(SWO~Year+area+season+offset(log(sets)),
+                  data=obsdat,
+                  family="nbinom2")
+newdata1<-newdata2<-expand.grid(Year=factor(levels(obsdat$Year)),
+                    area=factor("N"),
+                    season=factor("1"),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(NB2,
+              newdata = newdata1,
+              se.fit = TRUE,
+              type="response")
+newdata1$fit<-temp$fit
+newdata1$se<-temp$se.fit
+temp<-predict(TweedieBest,
+              newdata = newdata2,
+              se.fit = TRUE,
+              type="response")
+newdata2$fit<-temp$fit
+newdata2$se<-temp$se.fit
+
+bind_rows(list(NB2=newdata1,
+          Tweedie=newdata2),.id="type") %>%
+ggplot(aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se,color=type))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+
+
+```
+
+Very similar results.
+
+3. The swordfish data is not appropriate for delta-lognormal, because nearly all the trips caught at least one swordfish. For this problem, we will use a new BUM data set called BUM2.csv, which is simulated data for a different fleet only in the South Atlantic, and with possible predictor variables hbf(hooks between floats, numeric), Year and season. Fit the binomial model, look at the residuals and use dredge to find the best model. Do the same for the lognormal on the positive observations. Make the combined index and plot it plus and minus standard error. What is the trend over time? 
+
+```{r}
+bum2<-read.csv("BUM2.csv")%>%
+  mutate(season=factor(season),
+         Year=factor(Year),
+         CPUE=BUM/sets,
+         present=ifelse(BUM>0,1,0))
+summary(bum2)
+ggplot(bum2,aes(x=Year,y=CPUE))+
+  stat_summary()
+lnorm.mean=function(x1,x1e) {
+  exp(x1+0.5*x1e^2)
+}
+
+lnorm.se=function(x1,x1e) {
+  ((exp(x1e^2)-1)*exp(2*x1+x1e^2))^0.5
+}
+lo.se=function(x1,x1e,x2,x2e) {
+  if(length(x1[!is.na(x1) &!is.na(x2)])>1 & length(unique(x1))>1 & length(unique(x2))>1 )
+   cor12=cor(x1[!is.na(x1) &!is.na(x2)],x2[!is.na(x1) &!is.na(x2)]) else cor12=0
+  (x1e^2 * x2^2 +x2e^2*x1^2+2*x1*x2*cor12*x1e*x2e)^0.5
+}
+
+```
+
+
+Part 1. binomial
+
+
+```{r}
+BinomFit<-glmmTMB(present~(Year+season+hbf)^2,
+                  data=bum2,
+                  family="binomial",
+                na.action = "na.fail")
+BinDredge<-dredge(BinomFit,rank = "BIC")
+head(BinDredge)
+BinBest<-get.models(BinDredge,subset=1)[[1]]
+summary(BinBest)
+plot(simulateResiduals(BinBest))
+
+```
+
+Residuals look fine. Best model has hbf and season.
+
+Part 2. log(CPUE) positive only
+
+```{r}
+posdat<-filter(bum2,present==1)
+cpueFit<-glmmTMB(log(CPUE)~(Year+season+hbf)^2,
+                  data=posdat,
+                  family="gaussian",
+                na.action = "na.fail")
+cpueDredge<-dredge(cpueFit,rank = "BIC")
+head(cpueDredge)
+cpueBest<-get.models(cpueDredge,subset=1)[[1]]
+summary(cpueBest)
+plot(simulateResiduals(cpueBest))
+
+```
+Residuals look fine.INcludes multipel variables. 
+
+Calculate index
+
+```{r}
+newdata3<-expand.grid(Year=factor(levels(bum2$Year)),
+                    season=factor("1"),
+                    hbf=mean(bum2$hbf),
+                    sets=1)  #1 set to get CPUE
+temp<-predict(BinBest,
+              newdata = newdata3,
+              se.fit = TRUE,
+              type="response")
+newdata3$binomial<-temp$fit
+newdata3$binomial.se<-temp$se.fit
+temp<-predict(cpueBest,
+              newdata = newdata3,
+              se.fit = TRUE) #response is on log scale
+#lognormal conversion functions to get mean if positive
+newdata3$pos.cpue<-lnorm.mean(temp$fit,temp$se.fit)
+newdata3$pos.cpue.se<-lnorm.se(temp$fit,temp$se.fit)
+#index
+newdata3<-newdata3 %>%
+  mutate(fit=binomial*pos.cpue,
+         se=lo.se(binomial,binomial.se,pos.cpue,pos.cpue.se))
+head(newdata3)
+```
+
+Compare fits
+
+```{r}
+ggplot(newdata3,aes(x=as.numeric(as.character(Year)),y=fit,ymin=fit-se,
+           ymax=fit+se))+
+  geom_point(alpha=0.8)+
+  geom_errorbar(width=0.1,alpha=0.8)+
+  labs(x="Year",
+    y="Standardized CPUE (±SE)")
+```

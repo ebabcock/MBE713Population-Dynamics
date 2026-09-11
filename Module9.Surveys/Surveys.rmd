@@ -1,0 +1,378 @@
+---
+title: "Surveys"
+author: "Beth Babcock"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+### Simulated data for stratification
+
+```{r}
+set.seed(10)
+meanVals<-c(1,2.4,3.5,10)
+area<-expand.grid(x=1:100,y=1:100) %>%
+  mutate(strata=case_when(x<=50&y<=50~1,
+                          x<=50&y>50~2,
+                          x>50&y<=50~3,
+                          x>50&y>50~4),
+         N=rpois(10000,meanVals[strata]))  #random distribution
+ggplot(area,aes(x=x,y=y,fill=N))+
+  geom_tile()+
+  annotate("text",x=c(25,25,75,75),y=c(25,75,25,75),label=1:4,color="red")
+```
+
+Real population
+
+```{r}
+sum(area$N)
+```
+
+
+
+Make a simple random sample
+
+
+```{r}
+n<-50
+dataSimple<-sample(1:nrow(area),size=n,replace=FALSE)
+ggplot(area,aes(x=x,y=y,fill=N))+
+  geom_tile()+
+  geom_point(data=area[dataSimple,],aes(x=x,y=y),color="red")
+
+simple<-area[dataSimple,] %>% 
+  summarize(meanCount=mean(N),
+            seCount=sd(N)/sqrt(n()),
+            n=n(),
+            N=meanCount*nrow(area),
+            seN=seCount*nrow(area),
+            lci=N-2*seN,
+            uci=N+2*seN)
+simple %>% mutate(across(where(is.numeric),round,2))
+
+```
+
+Stratified with same sample size
+
+```{r}
+SamplesPerStrata<-round(n*meanVals/sum(meanVals))  #variance=mean for Poisson
+SamplesPerStrata
+strataSample<-NULL
+for(i in 1:4) strataSample<-
+  c(strataSample,sample(which(area$strata==i),
+                        size=SamplesPerStrata[i],
+                        replace=FALSE))
+table(area$strata[strataSample])
+ggplot(area,aes(x=x,y=y,fill=N))+
+  geom_tile()+
+  geom_point(data=area[strataSample,],aes(x=x,y=y),color="red")
+
+stratified<- area[strataSample,] %>% 
+  group_by(strata)%>%
+  summarize(meanCount=mean(N),
+            seCount=sd(N)/sqrt(n()),
+            n=n(),
+            area=nrow(area)/4,
+            N=meanCount*area,
+            seN=seCount*area) %>%
+  ungroup()
+
+stratified %>% mutate(across(where(is.numeric),round,2))
+stratTotal<-stratified %>% summarize(N=sum(N),
+                        seN=sqrt(sum(seN^2)),
+                        lci=N-2*seN,
+                        uci=N+2*seN)
+stratTotal %>% mutate(across(where(is.numeric),round,2))
+
+bind_rows(list(simple=simple,
+               stratified=stratTotal),
+          .id="Method")%>%
+  ggplot(aes(x=Method,y=N,ymin=lci,ymax=uci))+
+  geom_point()+
+  geom_errorbar(width=0.1)+
+  geom_hline(yintercept=sum(area$N),color="red")
+```
+With finite sample corrections. 
+
+```{r}
+simpleFinite<-area[dataSimple,] %>% 
+  summarize(meanCount=mean(N),
+            seCount=sd(N)/sqrt(n()),
+            f=n/nrow(area),
+            n=n(),
+            N=meanCount*nrow(area),
+            seN=(1-f)*seCount*nrow(area),
+            lci=N-2*seN,
+            uci=N+2*seN)
+simpleFinite %>% mutate(across(where(is.numeric),round,2))
+```
+
+Makes no difference because sample is a small part of the whole population
+
+### Simple random sample and stratified random
+
+Grand Banks Yellowtail Flounder in 2006 from Brad Stevens
+
+```{r}
+tows <- read.csv("GB_YTF_2006_Tows2.csv")
+head(tows)
+strata<-read.csv("strata.csv")
+strata
+ggplot(tows,aes(x=factor(Stratum),y=Num,color=Season))+
+  stat_summary(position=position_dodge(width=0.2))
+with(tows,table(Season,Stratum))
+```
+
+Simple random sample in stratum 1160, spring only
+
+```{r}
+strataSum<-tows %>% 
+  filter(Season=="Spring",Stratum==1160)%>%
+  group_by(Stratum) %>%
+  summarize(meanCount=mean(Num),
+            seCount=sd(Num)/sqrt(n()),
+            n=n(),
+            meanDensity=mean(Num/area),
+            seDensity=sd(Num/area)/sqrt(n()),
+            sampled.area=sum(area))
+#Or, as tows are all the same area (0.01)
+strataSum<-strataSum %>%
+  mutate(meanDensity2=meanCount/0.01,
+         seDensity2=seCount/0.01)
+# Use total area to get total numbers
+strataSum<-strataSum %>% 
+  mutate(N=meanDensity*2980,
+         seN=seDensity*2980)
+```
+
+
+Total average density and total numbers across seasons and spatial stratas. 
+Calculate totals per stratum, use left_join to add total areas to each stratum
+
+
+```{r}
+stratSeasonSum<-tows %>% group_by(Stratum,Season) %>%
+  summarize(meanCount=mean(Num),
+            seCount=sd(Num)/sqrt(n()),
+            n=n(),
+            meanDensity=mean(Num/area),
+            seDensity=sd(Num/area)/sqrt(n()),
+            sampled.area=sum(area)) %>%
+  left_join(strata,by="Stratum") %>%
+  mutate(N=meanDensity*area,
+         seN=seDensity*area) %>%
+  ungroup()
+view(stratSeasonSum)
+```
+
+Some strata are understudied, so can't be estimated. For now, fill in 0 for the variances to get the sum in each season
+
+```{r}
+TotalSeason<-stratSeasonSum %>%
+  mutate(seN=replace_na(seN,0),
+         seDensity=replace_na(seDensity,0)) %>%
+  group_by(Season)%>%
+  summarize(N=sum(N),
+            seN=sqrt(sum(seN^2)),
+            lciN=N-2*seN,
+            uciN=N+2*seN,
+            meanDensity=sum(meanDensity*area)/sum(area),
+            seDensity=sqrt((sum(seDensity^2*area)/sum(area))))
+
+TotalSeason
+```
+
+For comparison, unstratified sample in each season (not really correct)
+
+```{r}
+simpleSum<-tows %>%
+  group_by(Season)%>%
+  summarise(meanCount=mean(Num),
+            seCount=sd(Num)/sqrt(n())) %>%
+  mutate(N=meanCount*sum(strata$area)/0.01,
+         seN=seCount*sum(strata$area)/0.01,
+         lciN=N-2*seN,
+         uciN=N+2*seN)
+simpleSum
+
+```
+
+Comparing estimates
+
+```{r}
+bind_rows(list(simple=simpleSum,
+               stratified=TotalSeason),.id="Method") %>%
+  ggplot(aes(x=Season,y=N,ymin=lciN,ymax=uciN,color=Method,group=Method))+
+  geom_errorbar(position=position_dodge(width=0.1),width=0.1)+
+  geom_point(position=position_dodge(width=0.1))
+```
+
+In this case it doesn't make much difference if you use simple or stratified
+
+
+
+### Example 2. Shark bottom longline data
+
+https://www.fisheries.noaa.gov/inport/item/29395
+https://catalog.data.gov/dataset/shark-and-red-snapper-bottom-longline-survey
+
+ Strata: 9 – 55 m, 55 – 183 m, and 183 – 366 m, but we will ignore this for now
+
+```{r}
+station<-read.csv("Station_Data.csv") %>%
+  mutate(date=as.Date(DATE),
+         year=year(date))%>%
+  filter(year>2000)
+
+catch<-read.csv("Catch_Data.csv")
+head(catch)
+view(station)
+ 
+```
+
+Make a new column for species and count catch by species
+
+```{r}
+catchSum<-catch %>%
+  mutate(Species=paste(GENUS,SPECIES)) %>%
+  filter(Species %in% c("RHIZOPRIONODON TERRAENOVAE","LUTJANUS CAMPECHANUS"))%>%
+  group_by(SEAMAPSTATION,CID,Species) %>%
+  summarize(count=n())%>%
+  pivot_wider(names_from=Species,values_from=count,values_fill = 0)
+view(head(catchSum))
+StationData<-left_join(station,catchSum,by=c("SEAMAPSTATION","CID"))
+StationData<-StationData %>% 
+  mutate(redSnapper=replace_na(`LUTJANUS CAMPECHANUS`,0),
+         AtlSharpnose=replace_na(`RHIZOPRIONODON TERRAENOVAE`,0))
+view(StationData)
+```
+
+Get annual mean numbers
+
+```{r}
+ggplot(StationData,aes(x=factor(year),y=AtlSharpnose))+
+  geom_boxplot()
+yearSum<-StationData %>% 
+  group_by(year) %>%
+  summarize(meanAS=mean(AtlSharpnose),
+            seAS=sd(AtlSharpnose)/sqrt(n()))  
+ggplot(yearSum,aes(x=year,y=meanAS,ymin=meanAS-2*seAS,ymax=meanAS+2*seAS))+
+  geom_point()+
+  geom_errorbar(width=0.1)+
+  ylab("Mean count of Atlantic Sharpnose")
+```
+
+
+### Distance sampling
+
+https://distancesampling.org/Distance/articles/lines-distill.html
+
+https://distancesampling.org/Distance/articles/web-only/points/pointtransects-distill.html
+
+```{r,message=FALSE}
+library(Distance)
+```
+
+Line transect with wrens
+
+```{r}
+data(wren_lt)
+ggplot(wren_lt,aes(x=distance))+
+  geom_histogram(binwidth=5)+
+  ggtitle("Wren distance from transect line")
+
+ggplot(wren_lt,aes(x=as.numeric(Sample.Label)))+
+  geom_bar()+
+  labs(x="Transect number",
+       y="Number of wrens observed",
+       title="Counts of wrens by transect")
+head(wren_lt)
+```
+Area is the total hectares in the study area. Effort is the length (km) of the transect. Distance is in m. Convert_units function gives units of distance, transect length and area. 
+
+Best detection function found with ds()
+
+```{r}
+conversion.factor<-convert_units("meter", "kilometer", "hectare")
+wren.hn <- ds(data=wren_lt, 
+              key="hn", 
+              adjustment=NULL, 
+              convert_units=conversion.factor)
+summary(wren.hn)
+cutpoints <- c(0,5,10,15,20,30,40,50,65,80,100)
+plot(wren.hn, breaks=cutpoints, main="Half normal model, wren line transects")
+
+```
+Try other functions
+
+```{r}
+wren.unif.cos <- ds(wren_lt, key="unif", adjustment="cos", convert_units=conversion.factor)
+plot(wren.unif.cos, breaks=cutpoints, main="Uniform cosine model, wren line transects")
+wren.hr.poly <- ds(wren_lt, key="hr", adjustment="poly", convert_units=conversion.factor)
+plot(wren.hr.poly, breaks=cutpoints, main="Hazard polynomial, wren line transects")
+AIC(wren.hn, wren.hr.poly, wren.unif.cos)
+
+```
+
+Check fit of best model
+
+```{r}
+gof_ds(wren.hr.poly)
+```
+
+
+Point transect with sparrows
+
+```{r}
+
+data(Savannah_sparrow_1980)
+Savannah_sparrow_1980$Region.Label <- "Single_stratum"
+ggplot(Savannah_sparrow_1980,aes(x=distance))+
+  geom_histogram()
+#?ds
+```
+
+
+Find appropriate detection function
+
+```{r}
+sasp.hn <- ds(data=Savannah_sparrow_1980, 
+              key="hn", #half normal
+              adjustment=NULL,#no adjustment based on fitting variables
+              transect="point", #data is distance from point of observation. 
+              #No sampling effort given
+              convert_units=convert_units("meter", NULL, "hectare"),
+              truncation="5%") #Leave out most distance 5%
+summary(sasp.hn)
+cutpoints <- c(0,5,10,15,20,30,40,max(Savannah_sparrow_1980$distance, na.rm=TRUE))
+plot(sasp.hn, breaks=cutpoints, pdf=TRUE, main="Savannah sparrow point transect data.")
+```
+With a different detection function
+
+```{r}
+sasp.unif.cos <- ds(Savannah_sparrow_1980, key="unif", adjustment="cos",
+                    transect="point",
+                    convert_units=convert_units("meter", NULL, "hectare"), truncation="5%")
+
+plot(sasp.unif.cos, breaks=cutpoints, pdf=TRUE, main="Savannah sparrow point transect data.")
+```
+Compare models
+
+```{r}
+AIC(sasp.hn, sasp.unif.cos)
+```
+
+Half normal is best
+
+```{r}
+gof_ds(sasp.hn)
+```
+
+Residuals look fine
+
